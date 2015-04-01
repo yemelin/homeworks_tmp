@@ -1,6 +1,7 @@
 package solitaire;
 
 import java.awt.Graphics;
+import solitaire.Card;
 
 class TablePile extends CardPile {
 
@@ -14,7 +15,8 @@ class TablePile extends CardPile {
 		// flip topmost card face up
 		top().flip();
 	}
-
+	public final static int VSHIFT = 35;//size of the seen part of non-top cards
+	
 	public boolean canTake(final Card aCard) {
 		if (empty()) {
 			return aCard.isKing();
@@ -27,10 +29,18 @@ class TablePile extends CardPile {
 	public void display(final Graphics g) {
 		stackDisplay(g, top());
 	}
-
-	public boolean includes(final int tx, final int ty) {
-		// don't test bottom of card
-		return x <= tx && tx <= x + Card.width && y <= ty;
+//	by VVY
+	private int pileHeightY() {
+		return VSHIFT*(size()-1) + Card.height;
+	}
+//	private boolean isClickedBelow (final int ty) {
+//		return ty>y+pileHeightY();
+//	}
+	
+	public boolean includes(final int tx, final int ty) {		
+		int pileLowY = y+pileHeightY();
+		return x <= tx && tx <= x + Card.width && 
+			pileLowY-Card.height <= ty && ty<=pileLowY;//if ty is within topCard's y
 	}
 
 	public void select(final int tx, final int ty) {
@@ -71,7 +81,7 @@ class TablePile extends CardPile {
 		}
 		localy = stackDisplay(g, aCard.link);
 		aCard.draw(g, x, localy);
-		return localy + 35;
+		return localy + VSHIFT;
 	}
 
 }

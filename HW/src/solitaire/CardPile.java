@@ -3,6 +3,8 @@ package solitaire;
 import java.awt.Color;
 import java.awt.Graphics;
 
+import solitaire.Card;
+
 class CardPile {
 
 	private Card firstCard;
@@ -61,5 +63,15 @@ class CardPile {
 
 	public Card top() {
 		return firstCard;
+	}
+//	by VVY
+	public int size(){
+		Card card = firstCard;
+		int i=0;
+		while (card!=null) {
+			card=card.link;
+			i++;
+		}		
+		return i;
 	}
 }
