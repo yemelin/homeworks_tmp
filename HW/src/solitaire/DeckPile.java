@@ -1,5 +1,7 @@
 package solitaire;
 
+import solitaire.Solitaire;
+
 class DeckPile extends CardPile {
 
 	DeckPile(final int x, final int y) {
@@ -34,6 +36,10 @@ class DeckPile extends CardPile {
 
 	public void select(final int tx, final int ty) {
 		if (empty()) {
+			while (!Solitaire.discardPile.empty()) {
+				addCard(Solitaire.discardPile.pop());
+				top().flip();
+			}
 			return;
 		}
 		Solitaire.discardPile.addCard(pop());

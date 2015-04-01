@@ -51,7 +51,6 @@ class TablePile extends ProvidePile {
 		// if face down, then flip
 		Card topCard = top();
 		if (!topCard.isFaceUp()) {
-			System.out.println("faceup!");
 			topCard.flip();
 			return;
 		}
