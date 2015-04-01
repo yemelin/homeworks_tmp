@@ -14,4 +14,12 @@ class SuitPile extends CardPile {
 		return (aCard.getSuit() == topCard.getSuit())
 				&& (aCard.getRank() == 1 + topCard.getRank());
 	}
+	public void select(final int tx, final int ty) {
+		if (Solitaire.sender!=null) {
+			Solitaire.sender.sendCard(this);
+			Solitaire.sender.selected = false;
+			Solitaire.sender = null;
+			return;
+		}
+	}
 }

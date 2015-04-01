@@ -44,17 +44,20 @@ class TablePile extends ProvidePile {
 	}
 
 	public void select(final int tx, final int ty) {
-		if (empty()) {//duplicated, no idea how to get rid of it
-			return;
-		}		
-//		System.out.println("from tableCard.select()");
 		// if face down, then flip
-		Card topCard = top();
-		if (!topCard.isFaceUp()) {
+		Card topCard;
+		if (!empty() //duplicated with super.select, but no idea how to avoid it 
+				&& !(topCard=top()).isFaceUp()) {
 			topCard.flip();
 			return;
 		}
-		super.select(tx, ty);
+
+		if (Solitaire.sender==null)
+			super.select(tx, ty);
+		else {
+			Solitaire.sender.sendCard(this);
+			Solitaire.sender.toggleSelect();
+		}
 		return;
 	}
 

@@ -25,7 +25,15 @@ class CardPile {
 		aCard.link = firstCard;
 		firstCard = aCard;
 	}
-
+//	by VVY
+	public boolean sendCard(CardPile pile) {
+		if (!pile.canTake(top()))
+			return false;
+		pile.addCard(pop());
+		return true;
+		
+	}
+	
 	public boolean canTake(final Card aCard) {
 		return false;
 	}

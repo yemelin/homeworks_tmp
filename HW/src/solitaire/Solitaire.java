@@ -14,6 +14,8 @@ public class Solitaire extends Applet {
 	static DiscardPile discardPile;
 	static SuitPile suitPile[];
 	static TablePile tableau[];
+	
+	static ProvidePile sender = null;
 
 	public void init() {
 		// first allocate the arrays
