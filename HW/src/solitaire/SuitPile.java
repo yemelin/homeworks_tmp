@@ -16,9 +16,10 @@ class SuitPile extends CardPile {
 	}
 	public void select(final int tx, final int ty) {
 		if (Solitaire.sender!=null) {
-			Solitaire.sender.sendCard(this);
-			Solitaire.sender.selected = false;
-			Solitaire.sender = null;
+			ProvidePile sender = Solitaire.sender;
+//			Solitaire.sender.sendCard(this);
+			Solitaire.sender.toggleSelect();
+			sender.sendCard(this);
 			return;
 		}
 	}

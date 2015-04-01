@@ -12,4 +12,10 @@ class DiscardPile extends ProvidePile {
 		}
 		super.addCard(aCard);
 	}
+	public void select (final int x, final int y) {
+		if (Solitaire.sender!=null) {
+			Solitaire.sender.toggleSelect();
+		}
+		else toggleSelect();
+	}
 }

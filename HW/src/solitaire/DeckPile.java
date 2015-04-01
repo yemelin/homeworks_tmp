@@ -35,6 +35,10 @@ class DeckPile extends CardPile {
 	}
 
 	public void select(final int tx, final int ty) {
+		if (Solitaire.sender!=null) {
+			Solitaire.sender.toggleSelect();
+			return;
+		}
 		if (empty()) {
 			while (!Solitaire.discardPile.empty()) {
 				addCard(Solitaire.discardPile.pop());

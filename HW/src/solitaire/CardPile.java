@@ -67,6 +67,8 @@ class CardPile {
 
 	public void select(final int tx, final int ty) {
 		// do nothing
+		if (Solitaire.sender!=null)
+			Solitaire.sender.toggleSelect();
 	}
 
 	public Card top() {

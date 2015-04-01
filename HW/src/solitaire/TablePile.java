@@ -48,15 +48,20 @@ class TablePile extends ProvidePile {
 		Card topCard;
 		if (!empty() //duplicated with super.select, but no idea how to avoid it 
 				&& !(topCard=top()).isFaceUp()) {
-			topCard.flip();
+			if (Solitaire.sender==null)
+				topCard.flip();
+			else
+				Solitaire.sender.toggleSelect();
 			return;
 		}
 
 		if (Solitaire.sender==null)
 			super.select(tx, ty);
 		else {
-			Solitaire.sender.sendCard(this);
+			ProvidePile sender = Solitaire.sender;
 			Solitaire.sender.toggleSelect();
+			sender.sendCard(this);
+			
 		}
 		return;
 	}

@@ -25,6 +25,7 @@ class Card {
 	private int suit;
 
 	Card link;
+	public boolean selected=false; //TODO: make it private later
 
 	// constructor
 	Card(final int suitValue, final int rankValue) {
@@ -45,7 +46,12 @@ class Card {
 				"J", "Q", "K" };
 		// clear rectangle, draw border
 		g.clearRect(x, y, width, height);
-		g.setColor(Color.black);
+		
+		if (selected)
+			g.setColor(Color.green);
+		else
+			g.setColor(Color.black);
+		
 		g.drawRect(x, y, width, height);
 		// draw body of card
 		if (isFaceUp()) {
