@@ -5,6 +5,8 @@ import solitaire.Card;
 
 class TablePile extends ProvidePile {
 
+	public int nselect;
+
 	TablePile(final int x, final int y, final int c) {
 		// initialize the parent class
 		super(x, y);
@@ -36,16 +38,51 @@ class TablePile extends ProvidePile {
 //	private boolean isClickedBelow (final int ty) {
 //		return ty>y+pileHeightY();
 //	}
+	private int getCardNByY(final int ty) {
+		int topCardUpperY = y+pileHeightY()-Card.height;
+		if (topCardUpperY<=ty && ty<=topCardUpperY+Card.height)
+			return 0;
+		else
+			return (topCardUpperY-ty)/VSHIFT+1;
+	}
+	
+	@Override
+	public boolean sendCard(CardPile pile) {
+		Card card = top();
+		Card scard = getCard(nselect);
+		System.out.println("nselect = "+nselect+" "+top().getRank());		
+		if (!pile.canTake(getCard(nselect)))
+			return false;
+
+		if	(!pile.addCards( getCard(nselect), pop(nselect) ))
+//			System.out.println(pop());
+			addCards(scard, card);
+		return true;
+	}
+	
+	private int getFlipped() {
+		int i=0;
+		Card card=top();
+		while (card!=null && card.isFaceUp()) {
+			i++;
+			card = card.link;
+		}
+		return i;
+	}
 	
 	public boolean includes(final int tx, final int ty) {		
 		int pileLowY = y+pileHeightY();
+		int flipped = getFlipped();
+		if (flipped == 0 ) flipped++;//if top card is face down
 		return x <= tx && tx <= x + Card.width && 
-			pileLowY-Card.height <= ty && ty<=pileLowY;//if ty is within topCard's y
+			pileLowY-Card.height-flipped*VSHIFT <= ty 
+			&& ty<=pileLowY;//if ty is within topCard's y
 	}
 
 	public void select(final int tx, final int ty) {
 		// if face down, then flip
 //		Card topCard;
+
 //		duplicated code with suitPile -------
 		if (Solitaire.sender != null) {
 			ProvidePile sender = Solitaire.sender;
@@ -57,7 +94,10 @@ class TablePile extends ProvidePile {
 			if (!empty()) {
 				if (!top().isFaceUp())
 					top().flip();
-				else toggleSelect();
+				else {
+					nselect = getCardNByY(ty);
+					toggleSelect();
+				}
 			}
 		}
 		return;

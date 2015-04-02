@@ -21,11 +21,22 @@ class CardPile {
 
 	// the following are sometimes overridden
 
+	public boolean canTake(final Card aCard) {
+		return false;
+	}
+
 	public void addCard(final Card aCard) {
 		aCard.link = firstCard;
 		firstCard = aCard;
 	}
 //	by VVY
+//	wrong concept, cards may not be linked which will result in a mess
+	public boolean addCards(final Card loCard, final Card topCard){
+		loCard.link = firstCard;
+		firstCard = topCard;
+		return true;
+	}
+
 	public boolean sendCard(CardPile pile) {
 		if (!pile.canTake(top()))
 			return false;
@@ -33,11 +44,16 @@ class CardPile {
 		return true;
 		
 	}
-	
-	public boolean canTake(final Card aCard) {
-		return false;
-	}
 
+	public Card getCard (int n) {
+		Card card = firstCard;
+		int i=0;
+		while (i<n && card!=null) {
+			i++;
+			card = card.link;
+		}
+		return card;
+	}
 	public void display(final Graphics g) {
 		g.setColor(Color.black);
 		if (firstCard == null) {
@@ -64,7 +80,14 @@ class CardPile {
 		}
 		return result;
 	}
-
+	public Card pop(int i) {
+		Card result = null;
+		if (getCard(i)!=null) {
+			result = firstCard;
+			firstCard = getCard(i).link;
+		}
+		return result;
+	}
 	public void select(final int tx, final int ty) {
 		// do nothing
 		if (Solitaire.sender!=null)
