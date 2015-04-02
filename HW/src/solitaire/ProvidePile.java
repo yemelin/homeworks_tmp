@@ -12,25 +12,20 @@ public class ProvidePile extends CardPile{
 	public boolean selected = false;
 	public void toggleSelect() {
 		if (selected) {
-//			top().selected = false;
 			Solitaire.sender = null;
 		}
 		else {
-//			Solitaire.sender.top().selected = false;
-//			Solitaire.sender.selected = false;
 			Solitaire.sender = this;
-//			top().selected = true;
 		}
 		selected = !selected;
-//		System.out.println("toggle! "+top().getRank()+" "+top().selected);
 		top().selected = !top().selected;
-		System.out.println("toggle! "+top().getRank()+" "+top().selected);
+//		System.out.println("toggle! "+top().getRank()+" "+top().selected);
 	}
 	
-	public void select(final int tx, final int ty) {
-		if (!empty())
-			toggleSelect();
-	}
+//	public void select(final int tx, final int ty) {
+//		if (!empty())
+//			toggleSelect();
+//	}
 	
 	
 	public void select2(final int tx, final int ty) {
