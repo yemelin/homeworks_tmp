@@ -24,7 +24,9 @@ class Card {
 	private int rank;
 	private int suit;
 
-	Card link;
+	private Card link;
+	public Card next() {return link;}
+	public void setNext(Card card){link = card;}
 	public boolean selected=false; //TODO: make it private later
 
 	// constructor

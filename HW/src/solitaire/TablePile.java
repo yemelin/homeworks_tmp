@@ -29,7 +29,7 @@ class TablePile extends ProvidePile {
 	}
 
 	public void display(final Graphics g) {
-		stackDisplay(g, top());
+		stackDisplay(g, (Card)firstCard);
 	}
 //	by VVY
 	private int pileHeightY() {
@@ -54,7 +54,7 @@ class TablePile extends ProvidePile {
 		if (!pile.canTake(getCard(nselect)))
 			return false;
 
-		if	(!pile.addCards( getCard(nselect), pop(nselect) ))
+		if	(!pile.addCards( getCard(nselect), pop(nselect+1) ))
 //			System.out.println(pop());
 			addCards(scard, card);
 		return true;
@@ -65,7 +65,8 @@ class TablePile extends ProvidePile {
 		Card card=top();
 		while (card!=null && card.isFaceUp()) {
 			i++;
-			card = card.link;
+//			card = card.link;
+			card = card.next();
 		}
 		return i;
 	}
@@ -108,8 +109,13 @@ class TablePile extends ProvidePile {
 		if (aCard == null) {
 			return y;
 		}
-		localy = stackDisplay(g, aCard.link);
+//		localy = stackDisplay(g, aCard.link);
+		localy = stackDisplay(g, aCard.next());
 		aCard.draw(g, x, localy);
+//		
+//		if (0<x && x<400)
+//			System.out.println(aCard.getRank()+" "+size()+aCard.link);
+//			System.out.println(aCard.getRank()+" "+size()+aCard.next());
 		return localy + VSHIFT;
 	}
 
