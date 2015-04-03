@@ -5,7 +5,7 @@ import solitaire.Card;
 
 class TablePile extends ProvidePile {
 
-	public int nselect;
+//	public int nselect;
 
 	TablePile(final int x, final int y, final int c) {
 		// initialize the parent class
@@ -75,7 +75,7 @@ class TablePile extends ProvidePile {
 		int flipped = getFlipped();
 		if (flipped == 0 ) flipped++;//if top card is face down
 		return x <= tx && tx <= x + Card.width && 
-			pileLowY-Card.height-flipped*VSHIFT <= ty 
+			pileLowY-Card.height-(flipped-1)*VSHIFT <= ty 
 			&& ty<=pileLowY;//if ty is within topCard's y
 	}
 

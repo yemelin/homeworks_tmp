@@ -10,6 +10,7 @@ public class ProvidePile extends CardPile{
 		super(xl, yl);
 	}
 	public boolean selected = false;
+	public int nselect;
 	public void toggleSelect() {
 		if (selected) {
 			Solitaire.sender = null;
@@ -18,10 +19,15 @@ public class ProvidePile extends CardPile{
 			Solitaire.sender = this;
 		}
 		selected = !selected;
-		top().selected = !top().selected;
+//		top().selected = !top().selected;
+		toggleSelectedCards();
 //		System.out.println("toggle! "+top().getRank()+" "+top().selected);
 	}
-	
+//	temporary, inefficient
+	public void toggleSelectedCards() {
+		for (int i=0; i<=nselect; i++)
+			getCard(i).selected = !getCard(i).selected;
+	}
 //	public void select(final int tx, final int ty) {
 //		if (!empty())
 //			toggleSelect();
