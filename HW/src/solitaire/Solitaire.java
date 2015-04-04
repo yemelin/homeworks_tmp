@@ -16,6 +16,7 @@ public class Solitaire extends Applet {
 	static TablePile tableau[];
 	
 	static ProvidePile sender = null;
+	static Card msg = null;
 
 	public void init() {
 		// first allocate the arrays
@@ -32,7 +33,14 @@ public class Solitaire extends Applet {
 			allPiles[6 + i] = tableau[i] = new TablePile(5 + 55 * i, 80, i + 1);
 		}
 	}
-
+//	
+//	public void setSender(ProvidePile pp) {
+//		if (sender==null)
+//			sender=pp;
+//		sender.toggleSelectedCards();
+//	}
+	
+	
 	public boolean mouseDown(final Event evt, final int x, final int y) {
 		for (int i = 0; i < 13; i++) {
 			if (allPiles[i].includes(x, y)) {

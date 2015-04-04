@@ -13,15 +13,6 @@ public class SimpleStack {
 
 	private int sz = 0;
 	public Card firstCard = null; //change later to private
-
-//	public abstract static class Card {
-////		Object o;
-////		public Node(){};
-//		public Card next()=null;//change later to private
-//		public Card next() {
-//			return next();
-//		}
-//	}
 	
 	public boolean isEmpty(){
 		return (null==firstCard);
@@ -80,11 +71,11 @@ public class SimpleStack {
 	
 	public Card pop(int i) {
 		if (i>sz) return null;
-		Card node = get(i-1);
+		Card node = get(i);
 		Card ret = firstCard;
 		firstCard = node.next();
 		node.setNext(null);
-		sz-=i;
+		sz-=i+1;//error fixed!!!
 		return ret;
 	}
 	
@@ -92,7 +83,7 @@ public class SimpleStack {
 		return pop(0);
 	}
 	
-	public void display() {
+	public void printStack() {
 		Card node = firstCard;
 		while (node!=null) {
 			System.out.print(node.toString()+" ");

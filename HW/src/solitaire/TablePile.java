@@ -1,12 +1,13 @@
 package solitaire;
 
 import java.awt.Graphics;
+
 import solitaire.Card;
 
 class TablePile extends ProvidePile {
-
-//	public int nselect;
-
+	
+	private final static int VSHIFT = 35;//size of the seen part of non-top cards
+	
 	TablePile(final int x, final int y, final int c) {
 		// initialize the parent class
 		super(x, y);
@@ -17,27 +18,7 @@ class TablePile extends ProvidePile {
 		// flip topmost card face up
 		top().flip();
 	}
-	public final static int VSHIFT = 35;//size of the seen part of non-top cards
 	
-	public boolean canTake(final Card aCard) {
-		if (empty()) {
-			return aCard.isKing();
-		}
-		Card topCard = top();
-		return (aCard.color() != topCard.color())
-				&& (aCard.getRank() == topCard.getRank() - 1);
-	}
-
-	public void display(final Graphics g) {
-		stackDisplay(g, (Card)firstCard);
-	}
-//	by VVY
-	private int pileHeightY() {
-		return VSHIFT*(size()-1) + Card.height;
-	}
-//	private boolean isClickedBelow (final int ty) {
-//		return ty>y+pileHeightY();
-//	}
 	private int getCardNByY(final int ty) {
 		int topCardUpperY = y+pileHeightY()-Card.height;
 		if (topCardUpperY<=ty && ty<=topCardUpperY+Card.height)
@@ -45,34 +26,49 @@ class TablePile extends ProvidePile {
 		else
 			return (topCardUpperY-ty)/VSHIFT+1;
 	}
-	
-	@Override
-	public boolean sendCard(CardPile pile) {
-		Card card = top();
-		Card scard = getCard(nselect);
-		System.out.println("nselect = "+nselect+" "+top().getRank());		
-		if (!pile.canTake(getCard(nselect)))
-			return false;
-
-		if	(!pile.addCards( getCard(nselect), pop(nselect+1) ))
-//			System.out.println(pop());
-			addCards(scard, card);
-		return true;
-	}
-	
+		
 	private int getFlipped() {
 		int i=0;
 		Card card=top();
 		while (card!=null && card.isFaceUp()) {
 			i++;
-//			card = card.link;
 			card = card.next();
 		}
 		return i;
 	}
-	
+
+	private int pileHeightY() {
+		return VSHIFT*(size()-1) + Card.height;
+	}
+
+	@Override
+	public boolean isTakingFromTable() {
+		return true;
+	}
+
+	@Override
+	public boolean canTake(final Card aCard) {
+		Card card = aCard;
+		while (card.next()!=null)
+			card = card.next();
+		
+		if (empty()) {
+			return card.isKing();
+		}
+		Card topCard = top();
+
+		return (card.color() != topCard.color())
+				&& (card.getRank() == topCard.getRank() - 1);
+	}
+
+
 	public boolean includes(final int tx, final int ty) {		
 		int pileLowY = y+pileHeightY();
+		
+		if (x <= tx && tx <= x + Card.width) {
+			System.out.println("Click on card "+getCardNByY(ty)+" size:"+size());
+			printStack();
+		}
 		int flipped = getFlipped();
 		if (flipped == 0 ) flipped++;//if top card is face down
 		return x <= tx && tx <= x + Card.width && 
@@ -81,27 +77,24 @@ class TablePile extends ProvidePile {
 	}
 
 	public void select(final int tx, final int ty) {
-		// if face down, then flip
-//		Card topCard;
-
-//		duplicated code with suitPile -------
-		if (Solitaire.sender != null) {
-			ProvidePile sender = Solitaire.sender;
-			Solitaire.sender.toggleSelect();
-			sender.sendCard(this);			
-		} 
-//		----------
+		nselect = getCardNByY(ty);
+		if (Solitaire.sender!=null) {
+			super.select(tx, ty);
+		}
 		else {
 			if (!empty()) {
 				if (!top().isFaceUp())
 					top().flip();
 				else {
-					nselect = getCardNByY(ty);
-					toggleSelect();
+					Solitaire.sender = this;
+				/*	Solitaire.sender.*/selectCards(nselect+1, true);
 				}
 			}
 		}
-		return;
+	}
+
+	public void display(final Graphics g) {
+		stackDisplay(g, (Card)firstCard);
 	}
 
 	private int stackDisplay(final Graphics g, final Card aCard) {
@@ -109,13 +102,8 @@ class TablePile extends ProvidePile {
 		if (aCard == null) {
 			return y;
 		}
-//		localy = stackDisplay(g, aCard.link);
 		localy = stackDisplay(g, aCard.next());
 		aCard.draw(g, x, localy);
-//		
-//		if (0<x && x<400)
-//			System.out.println(aCard.getRank()+" "+size()+aCard.link);
-//			System.out.println(aCard.getRank()+" "+size()+aCard.next());
 		return localy + VSHIFT;
 	}
 

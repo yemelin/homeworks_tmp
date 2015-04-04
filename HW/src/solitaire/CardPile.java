@@ -13,12 +13,6 @@ class CardPile extends SimpleStack {
 	protected int x;
 	protected int y;
 	
-//	public class Node extends Card {
-//		Node(int tx, int ty) {
-//			super(tx, ty);
-//		}
-//	}
-	
 	CardPile(final int xl, final int yl) {
 		x = xl;
 		y = yl;
@@ -32,37 +26,21 @@ class CardPile extends SimpleStack {
 	}
 
 	public void addCard(final Card aCard) {
-//		aCard.link = firstCard;
-//		firstCard = aCard;
 		push(aCard);
-	}
-//	by VVY
-//	wrong concept, cards may not be linked which will result in a mess
-	public boolean addCards(final Card loCard, final Card topCard){
-//		loCard.link = firstCard;
-//		firstCard = topCard;
-//		loCard.link = null;
-//		loCard.setNext(null);
-		push(topCard);
-		return true;
 	}
 
 	public boolean sendCard(CardPile pile) {
-		if (!pile.canTake(top()))
+		Card card = pop();
+		if (!pile.canTake(card)) {
+			addCard(card);
 			return false;
-		pile.addCard(pop());
+		}
+		pile.addCard(card);
 		return true;
 		
 	}
 
 	public Card getCard (int n) {
-//		Card card = firstCard;
-//		int i=0;
-//		while (i<n && card!=null) {
-//			i++;
-//			card = card.link;
-//		}
-//		return card;
 		return (Card)get(n); //cast... hmm... Makes me worried
 	}
 	
@@ -86,38 +64,43 @@ class CardPile extends SimpleStack {
 	}
 
 	public Card pop() {
-//		Card result = null;
-//		if (firstCard != null) {
-//			result = firstCard;
-//			firstCard = firstCard.link;
-//		}
 		return (Card)super.pop();
 	}
 	public Card pop(int i) {
-//		Card result = null;
-//		if (getCard(i)!=null) {
-//			result = firstCard;
-//			firstCard = getCard(i).link;
-//		}
 		return (Card)super.pop(i);
 	}
+
+//	temporary card selection method
+	public void selectCards(int n, boolean val) {
+		Card card = top();
+		int i=0;
+		while (card!=null && i++<n) {
+			card.selected = val;
+			card = card.next();
+		}
+	}
+	public void takeFromTable(Card card){
+		if (canTake(card))
+			addCard(card);
+		else
+			Solitaire.sender.addCard(card);
+	}
+//	------------------------------
 	public void select(final int tx, final int ty) {
-		// do nothing
-		if (Solitaire.sender!=null)
-			Solitaire.sender.toggleSelect();
+		ProvidePile sender = Solitaire.sender; //just to make name shorter
+		if (sender!=null) {
+			sender.selectCards(sender.nselect+1, false);
+			if (isTakingFromTable())
+				takeFromTable(sender.pop(sender.nselect));
+			Solitaire.sender = null;
+		}
+	}
+
+	public boolean isTakingFromTable() {
+		return false;
 	}
 
 	public Card top() {
 		return (Card)super.top();
 	}
-//	by VVY
-//	public int size(){
-//		Card card = firstCard;
-//		int i=0;
-//		while (card!=null) {
-//			card=card.link;
-//			i++;
-//		}		
-//		return i;
-//	}
 }

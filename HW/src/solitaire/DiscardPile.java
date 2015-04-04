@@ -5,20 +5,21 @@ class DiscardPile extends ProvidePile {
 	DiscardPile(final int x, final int y) {
 		super(x, y);
 	}
-	{
-		nselect = 0;
-	}
+
 	public void addCard(final Card aCard) {
 		if (!aCard.isFaceUp()) {
 			aCard.flip();
 		}
 		super.addCard(aCard);
 	}
-	public void select (final int x, final int y) {
+
+	public void select (final int tx, final int ty) {
 		if (Solitaire.sender!=null) {
-			Solitaire.sender.toggleSelect();
+			super.select(tx, ty);
 		}
-		else if (!empty())
-			toggleSelect();
+		else if (!empty()) {
+			Solitaire.sender = this;
+		/*	Solitaire.sender.*/selectCards(nselect+1, true);
+		}
 	}
 }

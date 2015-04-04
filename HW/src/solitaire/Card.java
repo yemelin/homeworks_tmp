@@ -124,4 +124,8 @@ class Card {
 	final boolean isKing() {
 		return getRank() == 12;
 	}
+//	-----------
+	public String toString() {
+		return Integer.toString(getRank());
+	}
 }

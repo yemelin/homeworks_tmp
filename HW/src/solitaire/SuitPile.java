@@ -5,8 +5,17 @@ class SuitPile extends CardPile {
 	SuitPile(final int x, final int y) {
 		super(x, y);
 	}
-
+	
+	@Override
+	public boolean isTakingFromTable() {
+		return true;
+	}
+	
+	@Override
 	public boolean canTake(final Card aCard) {
+		if (aCard.next()!=null)
+			return false;
+
 		if (empty()) {
 			return aCard.isAce();
 		}
@@ -14,17 +23,11 @@ class SuitPile extends CardPile {
 		return (aCard.getSuit() == topCard.getSuit())
 				&& (aCard.getRank() == 1 + topCard.getRank());
 	}
-	public boolean addCards(final Card loCard, final Card topCard) {
-		if (loCard!=topCard)
-			return false;
-		else return super.addCards(loCard, topCard);
-	}
+
+	@Override
 	public void select(final int tx, final int ty) {
 		if (Solitaire.sender!=null) {
-			ProvidePile sender = Solitaire.sender;
-			Solitaire.sender.toggleSelect();
-			sender.sendCard(this);
-			return;
+			super.select(tx, ty);
 		}
 	}
 }
