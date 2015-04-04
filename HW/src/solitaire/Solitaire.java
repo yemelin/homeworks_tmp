@@ -33,15 +33,10 @@ public class Solitaire extends Applet {
 			allPiles[6 + i] = tableau[i] = new TablePile(5 + 55 * i, 80, i + 1);
 		}
 	}
-//	
-//	public void setSender(ProvidePile pp) {
-//		if (sender==null)
-//			sender=pp;
-//		sender.toggleSelectedCards();
-//	}
 	
 	
 	public boolean mouseDown(final Event evt, final int x, final int y) {
+		System.out.println("Down at "+ x+", "+y);
 		for (int i = 0; i < 13; i++) {
 			if (allPiles[i].includes(x, y)) {
 				allPiles[i].select(x, y);
@@ -49,6 +44,11 @@ public class Solitaire extends Applet {
 				return true;
 			}
 		}
+		return true;
+	}
+	
+	public boolean mouseDrag(final Event evt, final int x, final int y) {
+		System.out.println("Drag!");
 		return true;
 	}
 

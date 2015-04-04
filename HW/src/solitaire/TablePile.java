@@ -66,8 +66,8 @@ class TablePile extends ProvidePile {
 		int pileLowY = y+pileHeightY();
 		
 		if (x <= tx && tx <= x + Card.width) {
-			System.out.println("Click on card "+getCardNByY(ty)+" size:"+size());
-			printStack();
+//			System.out.println("Click on card "+getCardNByY(ty)+" size:"+size());
+//			printStack();
 		}
 		int flipped = getFlipped();
 		if (flipped == 0 ) flipped++;//if top card is face down
