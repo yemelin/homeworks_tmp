@@ -27,7 +27,8 @@ class SuitPile extends CardPile {
 	@Override
 	public void select(final int tx, final int ty) {
 		if (Solitaire.sender!=null) {
-			super.select(tx, ty);
+//			super.select(tx, ty);
+			addMsg();
 		}
 	}
 }

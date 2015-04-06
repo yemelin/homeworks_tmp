@@ -15,11 +15,15 @@ class DiscardPile extends ProvidePile {
 
 	public void select (final int tx, final int ty) {
 		if (Solitaire.sender!=null) {
-			super.select(tx, ty);
+//			super.select(tx, ty);
+			Solitaire.sender.addMsg();
+//			Solitaire.msg.clear();
+//			Solitaire.sender = null;
 		}
 		else if (!empty()) {
-			Solitaire.sender = this;
-		/*	Solitaire.sender.*/selectCards(nselect+1, true);
+//			Solitaire.sender = this;
+//		/*	Solitaire.sender.*/selectCards(nselect+1, true);
+			popMsg(x,y);
 		}
 	}
 }

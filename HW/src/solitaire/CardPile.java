@@ -72,9 +72,17 @@ class CardPile extends SimpleStack {
 
 //	temporary card selection method
 	public void selectCards(int n, boolean val) {
+		System.out.println("Select cards");
 		Card card = top();
 		int i=0;
 		while (card!=null && i++<n) {
+			card.selected = val;
+			card = card.next();
+		}
+	}
+	public void selectCards(boolean val) {
+		Card card = top();
+		while (card!=null) {
 			card.selected = val;
 			card = card.next();
 		}
@@ -85,7 +93,20 @@ class CardPile extends SimpleStack {
 		else
 			Solitaire.sender.addCard(card);
 	}
+	
+	public void popMsg(){}
+	public void addMsg(){
+		Solitaire.msg.selectCards(false);
+		if (canTake(Solitaire.msg.top()))
+			addCard(Solitaire.msg.top());
+		else
+			Solitaire.sender.addCard(Solitaire.msg.top());
+		Solitaire.msg.clear();
+		Solitaire.sender = null;
+
+	}
 //	------------------------------
+//	change it to "do nothing"
 	public void select(final int tx, final int ty) {
 		ProvidePile sender = Solitaire.sender; //just to make name shorter
 		if (sender!=null) {

@@ -14,6 +14,10 @@ public class SimpleStack {
 	private int sz = 0;
 	public Card firstCard = null; //change later to private
 	
+	public void clear() {
+		sz = 0;
+		firstCard = null;
+	}
 	public boolean isEmpty(){
 		return (null==firstCard);
 	}

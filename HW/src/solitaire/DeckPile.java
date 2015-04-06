@@ -36,7 +36,10 @@ class DeckPile extends CardPile {
 
 	public void select(final int tx, final int ty) {
 		if (Solitaire.sender!=null) {
-			super.select(tx, ty);
+//			super.select(tx, ty);
+			Solitaire.sender.addMsg();
+//			Solitaire.msg.clear();
+//			Solitaire.sender = null;
 		}
 		else if (empty()) {
 				while (!Solitaire.discardPile.empty()) {

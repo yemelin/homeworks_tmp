@@ -19,12 +19,20 @@ class TablePile extends ProvidePile {
 		top().flip();
 	}
 	
+//	by VVY
+	TablePile(final int x, final int y) {
+		super(x, y);
+	}
+	
 	private int getCardNByY(final int ty) {
+
 		int topCardUpperY = y+pileHeightY()-Card.height;
 		if (topCardUpperY<=ty && ty<=topCardUpperY+Card.height)
 			return 0;
-		else
+		else {
+//			System.out.println("Counting: ty="+ty+"nselect = "+nselect);
 			return (topCardUpperY-ty)/VSHIFT+1;
+		}
 	}
 		
 	private int getFlipped() {
@@ -52,11 +60,12 @@ class TablePile extends ProvidePile {
 		while (card.next()!=null)
 			card = card.next();
 		
+//		System.out.println("take "+card.getRank()+"?");
 		if (empty()) {
 			return card.isKing();
 		}
 		Card topCard = top();
-
+//		System.out.println("Top is:"+ topCard.getRank()+", take "+card.getRank()+"?");
 		return (card.color() != topCard.color())
 				&& (card.getRank() == topCard.getRank() - 1);
 	}
@@ -64,7 +73,7 @@ class TablePile extends ProvidePile {
 
 	public boolean includes(final int tx, final int ty) {		
 		int pileLowY = y+pileHeightY();
-		
+//		System.out.println("testing "+x+", "+y);
 		if (x <= tx && tx <= x + Card.width) {
 //			System.out.println("Click on card "+getCardNByY(ty)+" size:"+size());
 //			printStack();
@@ -76,7 +85,40 @@ class TablePile extends ProvidePile {
 			&& ty<=pileLowY;//if ty is within topCard's y
 	}
 
+	
 	public void select(final int tx, final int ty) {
+		nselect = getCardNByY(ty);
+//		System.out.println("nselect = "+nselect);
+		if (Solitaire.sender!=null) {
+			addMsg();
+//			Solitaire.msg.selectCards(false);
+//			if (canTake(Solitaire.msg.top()))
+//				addCard(Solitaire.msg.top());
+//			else
+//				Solitaire.sender.addCard(Solitaire.msg.top());
+//			Solitaire.msg.clear();
+//			Solitaire.sender = null;
+//			printStack();
+		}
+		else {
+			if (!empty()) {
+				if (!top().isFaceUp())
+					top().flip();
+				else {
+					popMsg(x,y+VSHIFT*(size()-1-nselect));
+//					Solitaire.msg.x = x;
+//					Solitaire.msg.y = y+VSHIFT*(size()-1-nselect);
+////					System.out.println("y = "+y+"nselect="+nselect+" msg's y = " + Solitaire.msg.y);
+//					Solitaire.msg.addCard(pop(nselect));
+//					Solitaire.msg.selectCards(true);
+//					Solitaire.sender = this;
+//					Solitaire.msg.printStack();
+				}
+			}
+		}
+	}
+
+	public void select2(final int tx, final int ty) {
 		nselect = getCardNByY(ty);
 		if (Solitaire.sender!=null) {
 			super.select(tx, ty);
