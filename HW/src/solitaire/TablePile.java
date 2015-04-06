@@ -35,7 +35,7 @@ class TablePile extends ProvidePile {
 		}
 	}
 		
-	private int getFlipped() {
+	int getFlipped() {
 		int i=0;
 		Card card=top();
 		while (card!=null && card.isFaceUp()) {

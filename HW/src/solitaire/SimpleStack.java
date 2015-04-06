@@ -83,6 +83,13 @@ public class SimpleStack {
 		return ret;
 	}
 	
+//	return a copy of the card, with a link set to null
+	public Card popCopy(int i) {
+		Card card = get(i); 
+		Card ret  = new Card(card.getSuit(), card.getRank());
+		return ret;
+	}
+	
 	public Card pop() {
 		return pop(0);
 	}

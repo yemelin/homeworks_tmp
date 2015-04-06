@@ -36,22 +36,64 @@ public class Solitaire extends Applet {
 		}
 	}
 	
-	public void tryTakeFromTable() {
-		Card topCard = Solitaire.msg.top();
+	public CardPile findTakingPile(Card card) {
 		for (int i = 0; i < 4; i++) {
-			if (Solitaire.suitPile[i].canTake(topCard)) {
-				Solitaire.suitPile[i].addMsg();
-				return;
+			if (Solitaire.suitPile[i].canTake(card)) {
+				return suitPile[i];
 			}
 		}
 		// else see if any other table pile can take card
 		for (int i = 0; i < 7; i++) {
-			if (Solitaire.tableau[i].canTake(topCard)) {
-				Solitaire.tableau[i].addMsg();
-				return;
+			if (Solitaire.tableau[i].canTake(card)) {
+				return tableau[i];
 			}
 		}
+		return null;
 	}
+
+	
+	public void tryTakeFromTable() {
+		Card card = Solitaire.msg.top();
+		CardPile pile = findTakingPile(card);
+		if (pile!=null)
+			pile.addMsg(); //addCard(card) + clear message
+//		for (int i = 0; i < 4; i++) {
+//			if (Solitaire.suitPile[i].canTake(topCard)) {
+//				Solitaire.suitPile[i].addMsg();
+//				return;
+//			}
+//		}
+//		// else see if any other table pile can take card
+//		for (int i = 0; i < 7; i++) {
+//			if (Solitaire.tableau[i].canTake(topCard)) {
+//				Solitaire.tableau[i].addMsg();
+//				return;
+//			}
+//		}
+	}
+	
+	public boolean isGameOver() {
+//		int i;
+		for (int i=0; i<deckPile.size(); i++)
+			if (findTakingPile(deckPile.popCopy(i))!=null)
+				return false;
+
+		for (int i=0; i<discardPile.size(); i++)
+			if (findTakingPile(discardPile.popCopy(i))!=null)
+				return false;
+
+		Card card;
+		for (int j=0; j<tableau.length; j++) {
+			for (int i=0; i<tableau[j].getFlipped(); i++) { 
+				if (findTakingPile(card = tableau[j].pop(i))!=null) {
+					tableau[j].addCard(card);
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
 	public void clickAction(int x, int y) {
 		for (int i = 0; i < 13; i++) {
 			if (allPiles[i].includes(x, y)) {
@@ -95,6 +137,10 @@ public class Solitaire extends Applet {
 			System.out.println("1click");
 			clickAction(x, y);
 		}
+		if (isGameOver())
+			System.out.println("GameOver!");
+		else
+			System.out.println("has moves!");
 		return true;
 	}
 
