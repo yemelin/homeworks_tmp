@@ -1,8 +1,9 @@
 package solitaire;
 
-public class SimpleStack {
-	public SimpleStack(){}
-	public SimpleStack(Card node){
+public class CardStack {
+//	constructors unused
+	public CardStack(){}
+	public CardStack(Card node){
 		firstCard = node;
 		if (node!=null) {
 			sz++;
@@ -12,7 +13,7 @@ public class SimpleStack {
 	}
 
 	private int sz = 0;
-	public Card firstCard = null; //change later to private
+	private Card firstCard = null; //perhaps should be protected
 	
 	public void clear() {
 		sz = 0;
@@ -22,10 +23,12 @@ public class SimpleStack {
 		return (null==firstCard);
 	}
 	
-	public int size(){
+	public final int size(){
 		return sz;
 	}
 
+//	return size starting from the Card. Should be a static method, as it's
+//	not related to a particular stack
 	public int size(Card node) {
 		int i=0;
 		while (node!=null) {
@@ -42,6 +45,7 @@ public class SimpleStack {
 		return node;
 	}
 
+//	pushes the whole linked list linked to the argument Card
 	public void push(final Card node){
 		if (node!=null) {
 			Card nd = node;
@@ -55,7 +59,7 @@ public class SimpleStack {
 		}
 	}
 	
-	public void push (SimpleStack s) {
+	public void push (CardStack s) {
 		if (!s.isEmpty()) {
 			sz+=s.size();
 			s.get(s.size()).setNext(firstCard);
@@ -63,18 +67,20 @@ public class SimpleStack {
 		}
 	}
 
+//	Commented out. Not needed, and also may create arg ambiguity. Delete later. 
 //	void push (Object o) {
 //		Node node = new Node();
 //		node.o=o;
 //		push(node);
 //	}
 	
-	public Card top() {
+	public final Card top() {
 		return firstCard;
 	}
 	
-	public Card pop(int i) {
-		if (i>sz) return null;
+	public final Card pop(int i) {
+		if (i>sz) 
+			return null;
 		Card node = get(i);
 		Card ret = firstCard;
 		firstCard = node.next();
@@ -90,7 +96,7 @@ public class SimpleStack {
 		return ret;
 	}
 	
-	public Card pop() {
+	public final Card pop() {
 		return pop(0);
 	}
 	

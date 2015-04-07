@@ -30,7 +30,7 @@ class Card {
 	public boolean selected=false; //TODO: make it private later
 
 	// constructor
-	Card(final int suitValue, final int rankValue) {
+	public Card(final int suitValue, final int rankValue) {
 		suit = suitValue;
 		rank = rankValue;
 		faceup = false;

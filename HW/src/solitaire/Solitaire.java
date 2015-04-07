@@ -15,12 +15,11 @@ public class Solitaire extends Applet {
 	static SuitPile suitPile[];
 	static TablePile tableau[];
 	
-	static ProvidePile sender = null;
-//	static Card msg = null;
-
-	static TablePile msg = new TablePile(0,0);
+	static TablePile msg; //"message" - cards to be moved
+	static ProvidePile sender;//link to the pile msg was taken from
 	
 	public void init() {
+		setSize(400, 400);
 		// first allocate the arrays
 		allPiles = new CardPile[13];
 		suitPile = new SuitPile[4];
@@ -28,6 +27,10 @@ public class Solitaire extends Applet {
 		// then fill them in
 		allPiles[0] = deckPile = new DeckPile(335, 5);
 		allPiles[1] = discardPile = new DiscardPile(268, 5);
+		
+		msg = new TablePile(-1,-1);
+		sender = null;
+		
 		for (int i = 0; i < 4; i++) {
 			allPiles[2 + i] = suitPile[i] = new SuitPile(15 + 60 * i, 5);
 		}
@@ -57,19 +60,6 @@ public class Solitaire extends Applet {
 		CardPile pile = findTakingPile(card);
 		if (pile!=null)
 			pile.addMsg(); //addCard(card) + clear message
-//		for (int i = 0; i < 4; i++) {
-//			if (Solitaire.suitPile[i].canTake(topCard)) {
-//				Solitaire.suitPile[i].addMsg();
-//				return;
-//			}
-//		}
-//		// else see if any other table pile can take card
-//		for (int i = 0; i < 7; i++) {
-//			if (Solitaire.tableau[i].canTake(topCard)) {
-//				Solitaire.tableau[i].addMsg();
-//				return;
-//			}
-//		}
 	}
 	
 	public boolean isGameOver() {
@@ -86,7 +76,7 @@ public class Solitaire extends Applet {
 		for (int j=0; j<tableau.length; j++) {
 			for (int i=0; i<tableau[j].getFlipped(); i++) { 
 				if (findTakingPile(card = tableau[j].pop(i))!=null) {
-					tableau[j].addCard(card);
+					tableau[j].push(card);
 					return false;
 				}
 			}
@@ -97,10 +87,8 @@ public class Solitaire extends Applet {
 	public void clickAction(int x, int y) {
 		for (int i = 0; i < 13; i++) {
 			if (allPiles[i].includes(x, y)) {
-//				System.out.println("column "+i);
 				allPiles[i].select(x, y);
 				repaint();
-//				System.out.println(Solitaire.msg.top().getRank());
 				return;
 			}
 		}
@@ -111,60 +99,34 @@ public class Solitaire extends Applet {
 	}
 	
 	public boolean mouseDown (final Event evt, final int x, final int y) {
-		System.out.println("Down at "+ x+", "+y+" "+evt.clickCount);
-//		for (int i = 0; i < 13; i++) {
-//			if (allPiles[i].includes(x, y)) {
-//				System.out.println("column "+i);
-//				allPiles[i].select(x, y);
-//				repaint();
-//				return true;
-//			}
-//		}
-//		if (Solitaire.sender!=null) {
-//			Solitaire.msg.select(x, y);
-//			repaint();
-//		}
-//		clickAction(x,y);
+/*		Double click is handled as follows:
+ * it seems, mousedown is called first with evt.clickCount==1, then again with
+ * ==2 Therefore, first time it is called as normal click, and if it resulted
+ * in creation a "message", the second call with clickCount==2 tries to send it.
+ */
 		if (evt.clickCount==2) {
-			System.out.println(Solitaire.sender+" "+Solitaire.msg);
 			if (Solitaire.sender!=null) {
 				tryTakeFromTable();
 				repaint();
-				System.out.println("Auto!");
 			}
 		}
 		else {
-			System.out.println("1click");
 			clickAction(x, y);
 		}
+//		------ Game over handling
 		if (isGameOver())
 			System.out.println("GameOver!");
-		else
-			System.out.println("has moves!");
+//		else
+//			System.out.println("has moves!");
+//		-----------
 		return true;
 	}
 
 	public boolean mouseUp(final Event evt, final int x, final int y) {
-//		System.out.println("Up!");
 		if (isdragged &&Solitaire.sender!=null) {
 			isdragged = false;
 			savex = -1; savey=-1;
 			mouseDown(evt, x, y);
-//			for (int i = 0; i < 13; i++) {
-////				System.out.println("column "+i);
-//				if (allPiles[i].includes(x, y)) {
-//					System.out.println("acceptor found");
-//					allPiles[i].select(x, y);
-//					repaint();
-//					return true;
-//				}
-//			}
-//
-//			if (Solitaire.sender!=null) {
-//				Solitaire.msg.select(x,y);//return to sender!
-//				repaint();
-//				return true;
-//			}
 		}
 		return true;
 	}
@@ -173,7 +135,6 @@ public class Solitaire extends Applet {
 	int savey = -1;
 	boolean isdragged = false;
 	public boolean mouseDrag(final Event evt, final int x, final int y) {
-//		System.out.println("Drag!"+x+","+y);
 		isdragged = true;
 		if (Solitaire.msg.includes(x, y)) {
 			if (savex!=-1) {
@@ -191,8 +152,8 @@ public class Solitaire extends Applet {
 		for (int i = 0; i < 13; i++) {
 			allPiles[i].display(g);
 		}
-//		by VVY
-		if (!msg.empty())
+//	msg pile should be the last to check
+		if (!msg.isEmpty())
 			msg.display(g);
 	}
 }

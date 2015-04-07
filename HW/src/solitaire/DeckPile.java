@@ -4,7 +4,7 @@ import solitaire.Solitaire;
 
 class DeckPile extends CardPile {
 
-	DeckPile(final int x, final int y) {
+	public DeckPile(final int x, final int y) {
 		// first initialize parent
 		super(x, y);
 		// then create the new deck
@@ -14,7 +14,7 @@ class DeckPile extends CardPile {
 		int count = 0;
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j <= 12; j++) {
-				pileOne.addCard(new Card(i, j));
+				pileOne.push(new Card(i, j));
 				count++;
 			}
 		}
@@ -23,13 +23,13 @@ class DeckPile extends CardPile {
 			int limit = ((int) (Math.random() * 1000)) % count;
 			// move down to a random location
 			for (int i = 0; i < limit; i++) {
-				pileTwo.addCard(pileOne.pop());
+				pileTwo.push(pileOne.pop());
 			}
 			// then add the card found there
-			addCard(pileOne.pop());
+			push(pileOne.pop());
 			// then put the decks back together
-			while (!pileTwo.empty()) {
-				pileOne.addCard(pileTwo.pop());
+			while (!pileTwo.isEmpty()) {
+				pileOne.push(pileTwo.pop());
 			}
 		}
 	}
@@ -38,18 +38,14 @@ class DeckPile extends CardPile {
 		if (Solitaire.sender!=null) {
 //			super.select(tx, ty);
 			Solitaire.sender.addMsg();
-//			Solitaire.msg.clear();
-//			Solitaire.sender = null;
 		}
-		else if (empty()) {
-				while (!Solitaire.discardPile.empty()) {
-					addCard(Solitaire.discardPile.pop());
+		else if (isEmpty()) {
+				while (!Solitaire.discardPile.isEmpty()) {
+					push(Solitaire.discardPile.pop());
 					top().flip();
 				}
-//				return;
 			}
-//		}
 		else
-			Solitaire.discardPile.addCard(pop());//sendCard(discardPile)
+			Solitaire.discardPile.push(pop());
 	}
 }

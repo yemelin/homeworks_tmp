@@ -8,33 +8,33 @@ class TablePile extends ProvidePile {
 	
 	private final static int VSHIFT = 35;//size of the seen part of non-top cards
 	
-	TablePile(final int x, final int y, final int c) {
+	public TablePile(final int x, final int y, final int c) {
 		// initialize the parent class
 		super(x, y);
 		// then initialize our pile of cards
 		for (int i = 0; i < c; i++) {
-			addCard(Solitaire.deckPile.pop());
+			push(Solitaire.deckPile.pop());
 		}
 		// flip topmost card face up
 		top().flip();
 	}
 	
-//	by VVY
-	TablePile(final int x, final int y) {
+//	this constructor is used to initialize msg pile as an empty pile
+	public TablePile(final int x, final int y) {
 		super(x, y);
 	}
 	
+//	get clicked card's number in the pile 
 	private int getCardNByY(final int ty) {
-
 		int topCardUpperY = y+pileHeightY()-Card.height;
 		if (topCardUpperY<=ty && ty<=topCardUpperY+Card.height)
 			return 0;
-		else {
-//			System.out.println("Counting: ty="+ty+"nselect = "+nselect);
+		else 
 			return (topCardUpperY-ty)/VSHIFT+1;
-		}
 	}
 		
+//	number of flipped card in the pile. Using private variable instead
+//	would be clearly better, but handling its update is a bit complicated
 	int getFlipped() {
 		int i=0;
 		Card card=top();
@@ -45,39 +45,31 @@ class TablePile extends ProvidePile {
 		return i;
 	}
 
+//	size of the displayed TablePile in pixels
 	private int pileHeightY() {
 		return VSHIFT*(size()-1) + Card.height;
 	}
 
 	@Override
-	public boolean isTakingFromTable() {
-		return true;
-	}
-
-	@Override
+//	original meaning changed. Tests if the pile can take the whole linked
+//	list topped with the Card. Therefore the last link should be to null,
+//	and the whole list should be popped
 	public boolean canTake(final Card aCard) {
 		Card card = aCard;
 		while (card.next()!=null)
-			card = card.next();
-		
-//		System.out.println("take "+card.getRank()+"?");
-		if (empty()) {
+			card = card.next();		
+		if (isEmpty()) {
 			return card.isKing();
 		}
 		Card topCard = top();
-//		System.out.println("Top is:"+ topCard.getRank()+", take "+card.getRank()+"?");
 		return (card.color() != topCard.color())
 				&& (card.getRank() == topCard.getRank() - 1);
 	}
 
-
+// updated includes(). Tests the bottom of the pile and the upper bound
+//	of the flipped cards
 	public boolean includes(final int tx, final int ty) {		
 		int pileLowY = y+pileHeightY();
-//		System.out.println("testing "+x+", "+y);
-		if (x <= tx && tx <= x + Card.width) {
-//			System.out.println("Click on card "+getCardNByY(ty)+" size:"+size());
-//			printStack();
-		}
 		int flipped = getFlipped();
 		if (flipped == 0 ) flipped++;//if top card is face down
 		return x <= tx && tx <= x + Card.width && 
@@ -88,55 +80,22 @@ class TablePile extends ProvidePile {
 	
 	public void select(final int tx, final int ty) {
 		nselect = getCardNByY(ty);
-//		System.out.println("nselect = "+nselect);
 		if (Solitaire.sender!=null) {
 			addMsg();
-//			Solitaire.msg.selectCards(false);
-//			if (canTake(Solitaire.msg.top()))
-//				addCard(Solitaire.msg.top());
-//			else
-//				Solitaire.sender.addCard(Solitaire.msg.top());
-//			Solitaire.msg.clear();
-//			Solitaire.sender = null;
-//			printStack();
 		}
 		else {
-			if (!empty()) {
+			if (!isEmpty()) {
 				if (!top().isFaceUp())
 					top().flip();
 				else {
 					popMsg(x,y+VSHIFT*(size()-1-nselect));
-//					Solitaire.msg.x = x;
-//					Solitaire.msg.y = y+VSHIFT*(size()-1-nselect);
-////					System.out.println("y = "+y+"nselect="+nselect+" msg's y = " + Solitaire.msg.y);
-//					Solitaire.msg.addCard(pop(nselect));
-//					Solitaire.msg.selectCards(true);
-//					Solitaire.sender = this;
-//					Solitaire.msg.printStack();
-				}
-			}
-		}
-	}
-
-	public void select2(final int tx, final int ty) {
-		nselect = getCardNByY(ty);
-		if (Solitaire.sender!=null) {
-			super.select(tx, ty);
-		}
-		else {
-			if (!empty()) {
-				if (!top().isFaceUp())
-					top().flip();
-				else {
-					Solitaire.sender = this;
-				/*	Solitaire.sender.*/selectCards(nselect+1, true);
 				}
 			}
 		}
 	}
 
 	public void display(final Graphics g) {
-		stackDisplay(g, (Card)firstCard);
+		stackDisplay(g, top());
 	}
 
 	private int stackDisplay(final Graphics g, final Card aCard) {

@@ -2,21 +2,16 @@ package solitaire;
 
 class SuitPile extends CardPile {
 
-	SuitPile(final int x, final int y) {
+	public SuitPile(final int x, final int y) {
 		super(x, y);
 	}
-	
-	@Override
-	public boolean isTakingFromTable() {
-		return true;
-	}
-	
+		
 	@Override
 	public boolean canTake(final Card aCard) {
-		if (aCard.next()!=null)
+		if (aCard.next()!=null) //take single cards only
 			return false;
 
-		if (empty()) {
+		if (isEmpty()) {
 			return aCard.isAce();
 		}
 		Card topCard = top();
