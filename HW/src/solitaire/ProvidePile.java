@@ -12,12 +12,14 @@ public class ProvidePile extends CardPile{
 
 	@Override
 //	pop selected cards and fill the msg pile with them
+//	it's in this class and uses x,y args, because TablePile provides y
+//	slightly in a different way than DiscardPile
 	public void popMsg(int x, int y){
 		Solitaire.msg.x = x;
 		Solitaire.msg.y = y;
 		Solitaire.msg.push(pop(nselect));
 		Solitaire.msg.selectCards(true);
-		Solitaire.sender = this;
+		Solitaire.setSender(this);
 
 	}	
 }

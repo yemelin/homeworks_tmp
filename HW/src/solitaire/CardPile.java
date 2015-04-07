@@ -54,22 +54,17 @@ class CardPile extends CardStack {
 			card = card.next();
 		}
 	}
-	public void takeFromTable(Card card){
-		if (canTake(card))
-			push(card);
-		else
-			Solitaire.sender.push(card);
-	}
 	
 	public void popMsg(int x, int y){}
+//	deselect cards in msg, either take them or return to sender, clear msg
 	public void addMsg(){
 		Solitaire.msg.selectCards(false);
 		if (canTake(Solitaire.msg.top()))
 			push(Solitaire.msg.top());
 		else
-			Solitaire.sender.push(Solitaire.msg.top());
+			Solitaire.getSender().push(Solitaire.msg.top());
 		Solitaire.msg.clear();
-		Solitaire.sender = null;
+//		Solitaire.sender = null; //unnecessary
 
 	}
 

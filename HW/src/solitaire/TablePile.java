@@ -80,7 +80,7 @@ class TablePile extends ProvidePile {
 	
 	public void select(final int tx, final int ty) {
 		nselect = getCardNByY(ty);
-		if (Solitaire.sender!=null) {
+		if (!Solitaire.msg.isEmpty()) {
 			addMsg();
 		}
 		else {

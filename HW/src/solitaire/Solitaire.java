@@ -16,7 +16,7 @@ public class Solitaire extends Applet {
 	static TablePile tableau[];
 	
 	static TablePile msg; //"message" - cards to be moved
-	static ProvidePile sender;//link to the pile msg was taken from
+	static private ProvidePile sender;//link to the pile msg was taken from
 	
 	public void init() {
 		setSize(400, 400);
@@ -39,6 +39,14 @@ public class Solitaire extends Applet {
 		}
 	}
 	
+	public final static void setSender(ProvidePile pile) {
+		sender = pile;
+	}
+	public final static ProvidePile getSender() {
+		return sender;
+	}
+
+
 	public CardPile findTakingPile(Card card) {
 		for (int i = 0; i < 4; i++) {
 			if (Solitaire.suitPile[i].canTake(card)) {
@@ -92,7 +100,7 @@ public class Solitaire extends Applet {
 				return;
 			}
 		}
-		if (Solitaire.sender!=null) {
+		if (!msg.isEmpty()/*sender!=null*/) {
 			Solitaire.msg.select(x, y);
 			repaint();
 		}		
@@ -105,7 +113,7 @@ public class Solitaire extends Applet {
  * in creation a "message", the second call with clickCount==2 tries to send it.
  */
 		if (evt.clickCount==2) {
-			if (Solitaire.sender!=null) {
+			if (!msg.isEmpty()) {
 				tryTakeFromTable();
 				repaint();
 			}
@@ -115,15 +123,17 @@ public class Solitaire extends Applet {
 		}
 //		------ Game over handling
 		if (isGameOver())
-			System.out.println("GameOver!");
-//		else
+			getAppletContext().showStatus("Game over!");
+//			System.out.println("GameOver!");
+		else
+			getAppletContext().showStatus("there are moves");
 //			System.out.println("has moves!");
 //		-----------
 		return true;
 	}
 
 	public boolean mouseUp(final Event evt, final int x, final int y) {
-		if (isdragged &&Solitaire.sender!=null) {
+		if (isdragged && !msg.isEmpty()) {
 			isdragged = false;
 			savex = -1; savey=-1;
 			mouseDown(evt, x, y);

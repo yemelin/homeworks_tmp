@@ -16,9 +16,8 @@ class DiscardPile extends ProvidePile {
 
 	@Override
 	public void select (final int tx, final int ty) {
-		if (Solitaire.sender!=null) {
-//			super.select(tx, ty);
-			Solitaire.sender.addMsg();
+		if (!Solitaire.msg.isEmpty()) {
+			Solitaire.getSender().addMsg();
 		}
 		else if (!isEmpty()) {
 			popMsg(x,y);
