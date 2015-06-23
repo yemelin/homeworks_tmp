@@ -7,13 +7,13 @@ import java.util.*;
 
 public class Columns extends Applet implements Runnable {
     static final int
-    SL=25,
-    Depth=15,
-    Width=7,
+    SL=25,			//box size in pixels
+    Depth=15,		//field height in boxes
+    Width=7,		//field width in boxes
     MaxLevel=7,
     TimeShift=250,
-    FigToDrop=33,
-    MinTimeShift=200,
+    FigToDrop=33,	//max number of lines built for level
+    MinTimeShift=200,	//time delay on the highest level
     LeftBorder=2,
     TopBorder=2;
     
@@ -21,17 +21,23 @@ public class Columns extends Applet implements Runnable {
     Color MyStyles[] = {Color.black,Color.cyan,Color.blue,Color.red,Color.green,
     Color.yellow,Color.pink,Color.magenta,Color.black};
     
-    int Level, i, j, ii, k, ch;
-    long Score, DScore, tc;
+    int Level, i, j, ii, 
+    	k,	//counts the lines built 
+    	ch;	//saves the key pressed
+    long Score, 
+    	DScore, //drop bonus, is added only if drop leads to some changes 
+    	tc;		//time counter
     Font fCourier;
     Figure Fig;
-    int Fnew[][],Fold[][];
+    int Fnew[][],Fold[][]; //two field copies. Needed for deletions of lines
     boolean NoChanges = true, KeyPressed = false;
     Graphics _gr;
     
     Thread thr = null;
     
-    
+//if (a,b),(c,d),(j,i) boxes are of the same color, replace them with a
+// replacement dummy (empty box with thick white border), set the flag
+// to signal the necessity to call PackField
     void CheckNeighbours(int a, int b, int c, int d, int i, int j) {
         if ((Fnew[j][i]==Fnew[a][b]) && (Fnew[j][i]==Fnew[c][d])) {
             Fold[a][b] = 0;
@@ -51,20 +57,21 @@ public class Columns extends Applet implements Runnable {
         }
         catch (InterruptedException e) {};
     }
+    
     void DrawBox(int x, int y, int c) {
-        if (c==0) {
+        if (c==0) {		//empty box
             _gr.setColor(Color.black);
             _gr.fillRect(LeftBorder+x*SL-SL, TopBorder+y*SL-SL, SL, SL);
             _gr.drawRect(LeftBorder+x*SL-SL, TopBorder+y*SL-SL, SL, SL);
         }
-        else if (c==8) {
+        else if (c==8) {	//replacement dummy box
             _gr.setColor(Color.white);
             _gr.drawRect(LeftBorder+x*SL-SL+1, TopBorder+y*SL-SL+1, SL-2, SL-2);
             _gr.drawRect(LeftBorder+x*SL-SL+2, TopBorder+y*SL-SL+2, SL-4, SL-4);
             _gr.setColor(Color.black);
             _gr.fillRect(LeftBorder+x*SL-SL+3, TopBorder+y*SL-SL+3, SL-6, SL-6);
         }
-        else {
+        else {	//colored box
             _gr.setColor(MyStyles[c]);
             _gr.fillRect(LeftBorder+x*SL-SL, TopBorder+y*SL-SL, SL, SL);
             _gr.setColor(Color.black);
@@ -72,6 +79,7 @@ public class Columns extends Applet implements Runnable {
         }
         //		g.setColor (Color.black);
     }
+    
     void DrawField(Graphics g) {
         int i,j;
         for (i=1; i<=Depth; i++) {
@@ -80,20 +88,23 @@ public class Columns extends Applet implements Runnable {
             }
         }
     }
+    
     void DrawFigure(Figure f) {
         DrawBox(f.x,f.y,f.c[1]);
         DrawBox(f.x,f.y+1,f.c[2]);
         DrawBox(f.x,f.y+2,f.c[3]);
     }
+    
     void DropFigure(Figure f) {
         int zz;
-        if (f.y < Depth-2) {
-            zz = Depth;
+        if (f.y < Depth-2) {//if the figure is not at the bottom
+            zz = Depth;	//find the first colored box under it (or the bottom)
             while (Fnew[f.x][zz]>0) zz--;
             DScore = (((Level+1)*(Depth*2-f.y-zz) * 2) % 5) * 5;
-            f.y = zz-2;
+            f.y = zz-2;		//drop
         }
     }
+//  Essentially a game over check. Check if any of the top boxes if colored.
     boolean FullField() {
         int i;
         for (i=1; i<=Width; i++) {
@@ -122,6 +133,7 @@ public class Columns extends Applet implements Runnable {
         ch = 'P';
         return true;
     }
+    
     void PackField() {
         int i,j,n;
         for (i=1; i<=Width; i++) {
@@ -298,8 +310,11 @@ public class Columns extends Applet implements Runnable {
             thr = null;
         }
     }
+
+// 
     void TestField() {
         int i,j;
+//   deep copy the field
         for (i=1; i<=Depth; i++) {
             for (j=1; j<=Width; j++) {
                 Fold[j][i] = Fnew [j][i];
@@ -308,10 +323,10 @@ public class Columns extends Applet implements Runnable {
         for (i=1; i<=Depth; i++) {
             for (j=1; j<=Width; j++) {
                 if (Fnew[j][i]>0) {
-                    CheckNeighbours(j,i-1,j,i+1,i,j);
-                    CheckNeighbours(j-1,i,j+1,i,i,j);
-                    CheckNeighbours(j-1,i-1,j+1,i+1,i,j);
-                    CheckNeighbours(j+1,i-1,j-1,i+1,i,j);
+                    CheckNeighbours(j,i-1,j,i+1,i,j);	//horizontal
+                    CheckNeighbours(j-1,i,j+1,i,i,j);	//vertical
+                    CheckNeighbours(j-1,i-1,j+1,i+1,i,j);//diagonal
+                    CheckNeighbours(j+1,i-1,j-1,i+1,i,j);//diagonal
                 }
             }
         }

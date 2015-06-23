@@ -5,7 +5,8 @@ import java.util.*;
 
 
 class Figure {
-	static int x=Columns.Width/2+1, y=1, c[]=new int[4];
+	static int x=Columns.Width/2+1, y=1, 
+			c[]=new int[4];//line colors. 0-slot only maintains 1-based numbering
 	static Random r = new Random();
 
 	Figure()
