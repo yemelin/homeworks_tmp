@@ -157,6 +157,7 @@ public class Columns extends Applet implements Runnable {
         DrawField(g);
         DrawFigure(Fig);
         requestFocus();
+        System.out.println("paint called");
     }
     void PasteFigure(Figure f) {
         Fnew[f.x][f.y] = f.c[1];
@@ -179,7 +180,7 @@ public class Columns extends Applet implements Runnable {
         
         do {
             tc = System.currentTimeMillis();
-            new Figure();
+            Fig = new Figure();
             DrawFigure(Fig);
             while ((Fig.y<Depth-2) && (Fnew[Fig.x][Fig.y+3]==0)) {
                 if ((int)(System.currentTimeMillis()-tc)>(MaxLevel-Level)*TimeShift+MinTimeShift) {
