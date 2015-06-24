@@ -5,7 +5,7 @@ import java.awt.*;
 import java.util.*;
 
 
-public class Columns extends Applet/* implements Runnable*/ {
+public class Columns extends Applet  implements ModelListener {
     static final int
     SL=25,			//box size in pixels
     Depth=15,		//field height in boxes
@@ -33,12 +33,18 @@ public class Columns extends Applet/* implements Runnable*/ {
     Thread thr = null;
     
 //VVY
-    Logic logic = new Logic();
+    Model model = new Model();
+    Logic logic = model._logic;
     Figure Fig = logic.getFigure();
+
+	private int saveX;
+	private int saveY;
+
 //if (a,b),(c,d),(j,i) boxes are of the same color, replace them with a
 // replacement dummy (empty box with thick white border), set the flag
 // to signal the necessity to call PackField
     void CheckNeighbours(int a, int b, int c, int d, int i, int j) {
+//    	System.out.println("checkneighbours");
         if (logic.processNeighbours(a, b, c, d, i, j)) {
         	DrawBox(a,b,8);
         	DrawBox(j,i,8);
@@ -84,6 +90,8 @@ public class Columns extends Applet/* implements Runnable*/ {
     }
     
     void DrawFigure(Figure f) {
+    	saveX = f.x;
+    	saveY = f.y;
         DrawBox(f.x,f.y,f.c[1]);
         DrawBox(f.x,f.y+1,f.c[2]);
         DrawBox(f.x,f.y+2,f.c[3]);
@@ -98,6 +106,13 @@ public class Columns extends Applet/* implements Runnable*/ {
         }
         return false;
     }
+//  temporary, unchecked
+    void myHideFigure(int saveX, int saveY) {
+        DrawBox(saveX,saveY,0);
+        DrawBox(saveX,saveY+1,0);
+        DrawBox(saveX,saveY+2,0);   	
+    }
+    
     void HideFigure(Figure f) {
         DrawBox(f.x,f.y,0);
         DrawBox(f.x,f.y+1,0);
@@ -105,16 +120,18 @@ public class Columns extends Applet/* implements Runnable*/ {
     }
     public void init() {
         _gr = getGraphics();
+        model.addListener(this);
         
         Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
+	            logic.newFigure();
+	            Fig = logic.getFigure();
 				while (!FullField()) {
-					try {
-						Thread.sleep(getDelay());
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+//					System.out.println("show");
+					DrawFigure(Fig);
+//					System.out.println("long delay "+getDelay()+1000);
+					Delay(getDelay()+1000);
 					if (logic.canMoveDown()) {
 						HideFigure(Fig);
 						logic.moveDown();
@@ -126,6 +143,7 @@ public class Columns extends Applet/* implements Runnable*/ {
 			            	logic.NoChanges = true;
 			            	TestField();
 			            	if (!logic.NoChanges) {
+			            		System.out.println("Small delay");
 			            		Delay(500);
 			            		logic.PackField();
 			            		DrawField(_gr);
@@ -138,8 +156,10 @@ public class Columns extends Applet/* implements Runnable*/ {
 			            		}
 			            	}
 			            } while (!logic.NoChanges);
+			            System.out.println("new");
 			            logic.newFigure();
 			            Fig = logic.getFigure();
+//			            DrawFigure(Fig);
 					}				
 				}
 			}
@@ -158,18 +178,10 @@ public class Columns extends Applet/* implements Runnable*/ {
 //------------------------------        
         switch (ch) {
         case Event.LEFT:
-    		if (logic.canMoveLeft()) {
-    		    HideFigure(Fig);
-    		    logic.moveLeft();
-    		    DrawFigure(Fig);
-    		}
+        	model.moveLeft();
             break;
         case Event.RIGHT:
-    		if (logic.canMoveRight()) {
-    		    HideFigure(Fig);
-    		    logic.moveRight();
-    		    DrawFigure(Fig);
-    		}
+        	model.moveRight();
             break;
         case Event.UP:
         	logic.scrollColorsUp();
@@ -392,4 +404,12 @@ public class Columns extends Applet/* implements Runnable*/ {
             }
         }
     }
+    @Override
+    public void onMove() {
+    	moveFigure(Fig);
+    }
+	private void moveFigure(Figure fig) {
+		myHideFigure(saveX, saveY);
+		DrawFigure(fig);		
+	}
 }

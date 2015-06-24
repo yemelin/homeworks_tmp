@@ -12,14 +12,14 @@ public class Logic {
 	int k;		  //triplet counter
 	
 	Logic() {
-        Fnew = new int[Columns.Width+2][Columns.Depth+2];//move it!
+        Fnew = new int[Columns.Width+2][Columns.Depth+2];
         Fold = new int[Columns.Width+2][Columns.Depth+2];
-        for (int i=0; i<Columns.Width+1; i++){
-            for (int j=0; j<Columns.Depth+1; j++) {
-                Fnew[i][j] = 0;
-                Fold[i][j] = 0;
-            }
-        }
+//        for (int i=0; i<Columns.Width+1; i++){
+//            for (int j=0; j<Columns.Depth+1; j++) {
+//                Fnew[i][j] = 0;
+//                Fold[i][j] = 0;
+//            }
+//        }
         Level = 0;
         Score = 0;
         k = 0;
@@ -30,21 +30,33 @@ public class Logic {
 	}
 
 	public void newFigure() {
-		Fig = new Figure();
+		Fig = new Figure();		
 	}
 
-	void moveLeft() {
-	    Fig.x--;
+	boolean moveLeft() {
+		if (canMoveLeft()) {
+			Fig.x--;
+			return true;
+		}
+		else return false;
 	}
 
-	void moveRight() {
-	    Fig.x++;
+	boolean moveRight() {
+		if (canMoveRight()) {
+			Fig.x++;
+			return true;
+		}
+		else return false;
 	}
 
-	void moveDown() {
-		Fig.y++;
+	boolean moveDown() {
+		if (canMoveDown()) {
+			Fig.y++;
+			return true;
+		}
+		else return false;
 	}
-	//------------------------------------------------    
+    
 	void scrollColorsDown() {
 		int i = Fig.c[1];
 		Fig.c[1] = Fig.c[3];
