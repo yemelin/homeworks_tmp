@@ -21,37 +21,30 @@ public class Columns extends Applet implements Runnable {
     Color MyStyles[] = {Color.black,Color.cyan,Color.blue,Color.red,Color.green,
     Color.yellow,Color.pink,Color.magenta,Color.black};
     
-    int Level, i, j, ii, 
-    	k,	//counts the lines built 
+    
+    int	i, j, ii, 
     	ch;	//saves the key pressed
-    long Score, 
-    	DScore, //drop bonus, is added only if drop leads to some changes 
-    	tc;		//time counter
+    long tc;		//time counter
     Font fCourier;
-    Figure Fig;
-    int Fnew[][],Fold[][]; //two field copies. Needed for deletions of lines
-    boolean NoChanges = true, KeyPressed = false;
+    boolean KeyPressed = false;
     Graphics _gr;
     
     Thread thr = null;
     
+//VVY
+    Logic logic = new Logic();
+    Figure Fig = logic.getFigure();
 //if (a,b),(c,d),(j,i) boxes are of the same color, replace them with a
 // replacement dummy (empty box with thick white border), set the flag
 // to signal the necessity to call PackField
     void CheckNeighbours(int a, int b, int c, int d, int i, int j) {
-        if ((Fnew[j][i]==Fnew[a][b]) && (Fnew[j][i]==Fnew[c][d])) {
-            Fold[a][b] = 0;
-            DrawBox(a,b,8);
-            Fold[j][i] = 0;
-            DrawBox(j,i,8);
-            Fold[c][d] = 0;
-            DrawBox(c,d,8);
-            NoChanges = false;
-            Score += (Level+1)*10;
-            k++;
-        };
+        if (logic.processNeighbours(a, b, c, d, i, j)) {
+        	DrawBox(a,b,8);
+        	DrawBox(j,i,8);
+        	DrawBox(c,d,8);
+        }
     }
-    void Delay(long t) {
+void Delay(long t) {
         try {
             Thread.sleep(t);
         }
@@ -84,7 +77,7 @@ public class Columns extends Applet implements Runnable {
         int i,j;
         for (i=1; i<=Depth; i++) {
             for (j=1; j<=Width; j++) {
-                DrawBox(j,i,Fnew[j][i]);
+                DrawBox(j,i,logic.Fnew[j][i]);
             }
         }
     }
@@ -95,20 +88,11 @@ public class Columns extends Applet implements Runnable {
         DrawBox(f.x,f.y+2,f.c[3]);
     }
     
-    void DropFigure(Figure f) {
-        int zz;
-        if (f.y < Depth-2) {//if the figure is not at the bottom
-            zz = Depth;	//find the first colored box under it (or the bottom)
-            while (Fnew[f.x][zz]>0) zz--;
-            DScore = (((Level+1)*(Depth*2-f.y-zz) * 2) % 5) * 5;
-            f.y = zz-2;		//drop
-        }
-    }
-//  Essentially a game over check. Check if any of the top boxes if colored.
+    //  Essentially a game over check. Check if any of the top boxes if colored.
     boolean FullField() {
         int i;
         for (i=1; i<=Width; i++) {
-            if (Fnew[i][3]>0)
+            if (logic.Fnew[i][3]>0)
                 return true;
         }
         return false;
@@ -119,8 +103,8 @@ public class Columns extends Applet implements Runnable {
         DrawBox(f.x,f.y+2,0);
     }
     public void init() {
-        Fnew = new int[Width+2][Depth+2];
-        Fold = new int[Width+2][Depth+2];
+        logic.Fnew = new int[Width+2][Depth+2];//move it!
+        logic.Fold = new int[Width+2][Depth+2];
         _gr = getGraphics();
     }
     public boolean keyDown(Event e, int k) {
@@ -134,19 +118,6 @@ public class Columns extends Applet implements Runnable {
         return true;
     }
     
-    void PackField() {
-        int i,j,n;
-        for (i=1; i<=Width; i++) {
-            n = Depth;
-            for (j=Depth; j>0; j--) {
-                if (Fold[i][j]>0) {
-                    Fnew[i][n] = Fold[i][j];
-                    n--;
-                }
-            };
-            for (j=n; j>0; j--) Fnew[i][j] = 0;
-        }
-    }
     public void paint(Graphics g) {
         //		ShowHelp(g);
         
@@ -155,77 +126,67 @@ public class Columns extends Applet implements Runnable {
         ShowLevel(g);
         ShowScore(g);
         DrawField(g);
-        DrawFigure(Fig);
+        DrawFigure(logic.Fig); //FIX!!
         requestFocus();
         System.out.println("paint called");
-    }
-    void PasteFigure(Figure f) {
-        Fnew[f.x][f.y] = f.c[1];
-        Fnew[f.x][f.y+1] = f.c[2];
-        Fnew[f.x][f.y+2] = f.c[3];
     }
     public void run() {
         for (i=0; i<Width+1; i++){
             for (j=0; j<Depth+1; j++) {
-                Fnew[i][j] = 0;
-                Fold[i][j] = 0;
+                logic.Fnew[i][j] = 0;
+                logic.Fold[i][j] = 0;
             }
         }
-        Level = 0;
-        Score = 0;
+        logic.Level = 0;
+        logic.Score = 0;
         j = 0;
-        k = 0;
+        logic.k = 0;
         _gr.setColor(Color.black);
         requestFocus();
         
         do {
             tc = System.currentTimeMillis();
-            Fig = new Figure();
+            logic.newFigure();
+            Fig = logic.getFigure();
             DrawFigure(Fig);
-            while ((Fig.y<Depth-2) && (Fnew[Fig.x][Fig.y+3]==0)) {
-                if ((int)(System.currentTimeMillis()-tc)>(MaxLevel-Level)*TimeShift+MinTimeShift) {
+            while (logic.canMoveDown()) {
+                if ((int)(System.currentTimeMillis()-tc)>(MaxLevel-logic.Level)*TimeShift+MinTimeShift) {
                     tc = System.currentTimeMillis();
                     HideFigure(Fig);
-                    Fig.y++;
+                    logic.moveDown();
                     DrawFigure(Fig);
                 }
-                DScore = 0;
+                logic.DScore = 0;
                 do {
                     Delay(50);
                     if (KeyPressed) {
                         KeyPressed = false;
                         switch (ch) {
                             case Event.LEFT:
-                                if ((Fig.x>1) && (Fnew[Fig.x-1][Fig.y+2]==0)) {
-                                    HideFigure(Fig);
-                                    Fig.x--;
-                                    DrawFigure(Fig);
-                                }
+                        		if (logic.canMoveLeft()) {
+                        		    HideFigure(Fig);
+                        		    logic.moveLeft();
+                        		    DrawFigure(Fig);
+                        		}
                                 break;
                             case Event.RIGHT:
-                                if ((Fig.x<Width) && (Fnew[Fig.x+1][Fig.y+2]==0)) {
-                                    HideFigure(Fig);
-                                    Fig.x++;
-                                    DrawFigure(Fig);
-                                }
+                        		if (logic.canMoveRight()) {
+                        		    HideFigure(Fig);
+                        		    logic.moveRight();
+                        		    DrawFigure(Fig);
+                        		}
                                 break;
                             case Event.UP:
-                                i = Fig.c[1];
-                                Fig.c[1] = Fig.c[2];
-                                Fig.c[2] = Fig.c[3];
-                                Fig.c[3] = i;
-                                DrawFigure(Fig);
+                            	logic.scrollColorsUp();
+                        		DrawFigure(Fig);
                                 break;
                             case Event.DOWN:
-                                i = Fig.c[1];
-                                Fig.c[1] = Fig.c[3];
-                                Fig.c[3] = Fig.c[2];
-                                Fig.c[2] = i;
-                                DrawFigure(Fig);
+                            	logic.scrollColorsDown();
+                        		DrawFigure(Fig);
                                 break;
                             case ' ':
                                 HideFigure(Fig);
-                                DropFigure(Fig);
+                                logic.DropFigure();
                                 DrawFigure(Fig);
                                 tc = 0;
                                 break;
@@ -240,39 +201,40 @@ public class Columns extends Applet implements Runnable {
                                 tc = System.currentTimeMillis();
                                 break;
                             case '-':
-                                if (Level > 0) Level--;
-                                k=0;
+                                if (logic.Level > 0) logic.Level--;
+                                logic.k=0;
                                 ShowLevel(_gr);
                                 break;
                             case '+':
-                                if (Level < MaxLevel) Level++;
-                                k=0;
+                                if (logic.Level < MaxLevel) logic.Level++;
+                                logic.k=0;
                                 ShowLevel(_gr);
                                 break;
                         }
                     }
-                } while ( (int)(System.currentTimeMillis()-tc) <= (MaxLevel-Level)*TimeShift+MinTimeShift );
+                } while ( (int)(System.currentTimeMillis()-tc) <= (MaxLevel-logic.Level)*TimeShift+MinTimeShift );
             };
-            PasteFigure(Fig);
+            logic.PasteFigure();
             do {
-                NoChanges = true;
+                logic.NoChanges = true;
                 TestField();
-                if (!NoChanges) {
+                if (!logic.NoChanges) {
                     Delay(500);
-                    PackField();
+                    logic.PackField();
                     DrawField(_gr);
-                    Score += DScore;
+                    logic.Score += logic.DScore;
                     ShowScore(_gr);
-                    if (k>=FigToDrop) {
-                        k = 0;
-                        if (Level<MaxLevel) Level++;
+                    if (logic.k>=FigToDrop) {
+                        logic.k = 0;
+                        if (logic.Level<MaxLevel) logic.Level++;
                         ShowLevel(_gr);
                     }
                 }
-            } while (!NoChanges);
+            } while (!logic.NoChanges);
         }while (!FullField());
     }
-    void ShowHelp(Graphics g) {
+    
+	void ShowHelp(Graphics g) {
         g.setColor(Color.black);
         
         g.drawString(" Keys available:",200-LeftBorder,102);
@@ -288,12 +250,12 @@ public class Columns extends Applet implements Runnable {
     void ShowLevel(Graphics g) {
         g.setColor(Color.black);
         g.clearRect(LeftBorder+100,390,100,20);
-        g.drawString("Level: "+Level,LeftBorder+100,400);
+        g.drawString("Level: "+logic.Level,LeftBorder+100,400);
     }
     void ShowScore(Graphics g) {
         g.setColor(Color.black);
         g.clearRect(LeftBorder,390,100,20);
-        g.drawString("Score: "+Score,LeftBorder,400);
+        g.drawString("Score: "+logic.Score,LeftBorder,400);
     }
     public void start() {
         _gr.setColor(Color.black);
@@ -318,12 +280,12 @@ public class Columns extends Applet implements Runnable {
 //   deep copy the field
         for (i=1; i<=Depth; i++) {
             for (j=1; j<=Width; j++) {
-                Fold[j][i] = Fnew [j][i];
+                logic.Fold[j][i] = logic.Fnew [j][i];
             }
         }
         for (i=1; i<=Depth; i++) {
             for (j=1; j<=Width; j++) {
-                if (Fnew[j][i]>0) {
+                if (logic.Fnew[j][i]>0) {
                     CheckNeighbours(j,i-1,j,i+1,i,j);	//horizontal
                     CheckNeighbours(j-1,i,j+1,i,i,j);	//vertical
                     CheckNeighbours(j-1,i-1,j+1,i+1,i,j);//diagonal
