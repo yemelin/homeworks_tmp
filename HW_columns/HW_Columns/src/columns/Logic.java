@@ -10,6 +10,20 @@ public class Logic {
 	int Fnew[][];
 	int Fold[][]; //two field copies. Needed for deletions of lines
 	int k;		  //triplet counter
+	
+	Logic() {
+        Fnew = new int[Columns.Width+2][Columns.Depth+2];//move it!
+        Fold = new int[Columns.Width+2][Columns.Depth+2];
+        for (int i=0; i<Columns.Width+1; i++){
+            for (int j=0; j<Columns.Depth+1; j++) {
+                Fnew[i][j] = 0;
+                Fold[i][j] = 0;
+            }
+        }
+        Level = 0;
+        Score = 0;
+        k = 0;
+	}
 
 	public Figure getFigure() {
 		return Fig;

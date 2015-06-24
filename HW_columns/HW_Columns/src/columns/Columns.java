@@ -5,7 +5,7 @@ import java.awt.*;
 import java.util.*;
 
 
-public class Columns extends Applet implements Runnable {
+public class Columns extends Applet/* implements Runnable*/ {
     static final int
     SL=25,			//box size in pixels
     Depth=15,		//field height in boxes
@@ -27,6 +27,7 @@ public class Columns extends Applet implements Runnable {
     long tc;		//time counter
     Font fCourier;
     boolean KeyPressed = false;
+    boolean isPaused = false;
     Graphics _gr;
     
     Thread thr = null;
@@ -44,7 +45,7 @@ public class Columns extends Applet implements Runnable {
         	DrawBox(c,d,8);
         }
     }
-void Delay(long t) {
+    void Delay(long t) {
         try {
             Thread.sleep(t);
         }
@@ -103,13 +104,109 @@ void Delay(long t) {
         DrawBox(f.x,f.y+2,0);
     }
     public void init() {
-        logic.Fnew = new int[Width+2][Depth+2];//move it!
-        logic.Fold = new int[Width+2][Depth+2];
         _gr = getGraphics();
+        
+        Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (!FullField()) {
+					try {
+						Thread.sleep(getDelay());
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					if (logic.canMoveDown()) {
+						HideFigure(Fig);
+						logic.moveDown();
+						DrawFigure(Fig);
+					}
+					else {
+			            logic.PasteFigure();
+			            do {
+			            	logic.NoChanges = true;
+			            	TestField();
+			            	if (!logic.NoChanges) {
+			            		Delay(500);
+			            		logic.PackField();
+			            		DrawField(_gr);
+			            		logic.Score += logic.DScore;
+			            		ShowScore(_gr);
+			            		if (logic.k>=FigToDrop) {
+			            			logic.k = 0;
+			            			if (logic.Level<MaxLevel) logic.Level++;
+			            				ShowLevel(_gr);
+			            		}
+			            	}
+			            } while (!logic.NoChanges);
+			            logic.newFigure();
+			            Fig = logic.getFigure();
+					}				
+				}
+			}
+        });
+		thread.setDaemon(true);
+		thread.start();
     }
     public boolean keyDown(Event e, int k) {
-        KeyPressed = true;
-        ch = e.key;
+//        KeyPressed = true;
+//        ch = e.key;
+    	KeyPressed = false;
+//    	if (isPaused)
+    	isPaused = false;
+        ch = k;
+//        System.out.println(ch);
+//------------------------------        
+        switch (ch) {
+        case Event.LEFT:
+    		if (logic.canMoveLeft()) {
+    		    HideFigure(Fig);
+    		    logic.moveLeft();
+    		    DrawFigure(Fig);
+    		}
+            break;
+        case Event.RIGHT:
+    		if (logic.canMoveRight()) {
+    		    HideFigure(Fig);
+    		    logic.moveRight();
+    		    DrawFigure(Fig);
+    		}
+            break;
+        case Event.UP:
+        	logic.scrollColorsUp();
+    		DrawFigure(Fig);
+            break;
+        case Event.DOWN:
+        	logic.scrollColorsDown();
+    		DrawFigure(Fig);
+            break;
+        case ' ':
+            HideFigure(Fig);
+            logic.DropFigure();
+            DrawFigure(Fig);
+            tc = 0;
+            break;
+        case 80://'P':
+        case 112://'p':
+//            while (!KeyPressed) {
+//                HideFigure(Fig);
+//                Delay(500);
+//                DrawFigure(Fig);
+//                Delay(500);
+//            }
+        	isPaused=true; //fix later or move back to run()
+            tc = System.currentTimeMillis();
+            break;
+        case '-':
+            if (logic.Level > 0) logic.Level--;
+            logic.k=0;
+            ShowLevel(_gr);
+            break;
+        case '+':
+            if (logic.Level < MaxLevel) logic.Level++;
+            logic.k=0;
+            ShowLevel(_gr);
+            break;
+    }
         return true;
     }
     public boolean lostFocus(Event e, Object w) {
@@ -128,19 +225,11 @@ void Delay(long t) {
         DrawField(g);
         DrawFigure(logic.Fig); //FIX!!
         requestFocus();
-        System.out.println("paint called");
+//        System.out.println("paint called");
     }
-    public void run() {
-        for (i=0; i<Width+1; i++){
-            for (j=0; j<Depth+1; j++) {
-                logic.Fnew[i][j] = 0;
-                logic.Fold[i][j] = 0;
-            }
-        }
-        logic.Level = 0;
-        logic.Score = 0;
-        j = 0;
-        logic.k = 0;
+    
+    
+    public void run2() {
         _gr.setColor(Color.black);
         requestFocus();
         
@@ -150,7 +239,7 @@ void Delay(long t) {
             Fig = logic.getFigure();
             DrawFigure(Fig);
             while (logic.canMoveDown()) {
-                if ((int)(System.currentTimeMillis()-tc)>(MaxLevel-logic.Level)*TimeShift+MinTimeShift) {
+                if ((int)(System.currentTimeMillis()-tc)>getDelay()) {
                     tc = System.currentTimeMillis();
                     HideFigure(Fig);
                     logic.moveDown();
@@ -158,61 +247,67 @@ void Delay(long t) {
                 }
                 logic.DScore = 0;
                 do {
-                    Delay(50);
-                    if (KeyPressed) {
-                        KeyPressed = false;
-                        switch (ch) {
-                            case Event.LEFT:
-                        		if (logic.canMoveLeft()) {
-                        		    HideFigure(Fig);
-                        		    logic.moveLeft();
-                        		    DrawFigure(Fig);
-                        		}
-                                break;
-                            case Event.RIGHT:
-                        		if (logic.canMoveRight()) {
-                        		    HideFigure(Fig);
-                        		    logic.moveRight();
-                        		    DrawFigure(Fig);
-                        		}
-                                break;
-                            case Event.UP:
-                            	logic.scrollColorsUp();
-                        		DrawFigure(Fig);
-                                break;
-                            case Event.DOWN:
-                            	logic.scrollColorsDown();
-                        		DrawFigure(Fig);
-                                break;
-                            case ' ':
-                                HideFigure(Fig);
-                                logic.DropFigure();
-                                DrawFigure(Fig);
-                                tc = 0;
-                                break;
-                            case 'P':
-                            case 'p':
-                                while (!KeyPressed) {
-                                    HideFigure(Fig);
-                                    Delay(500);
-                                    DrawFigure(Fig);
-                                    Delay(500);
-                                }
-                                tc = System.currentTimeMillis();
-                                break;
-                            case '-':
-                                if (logic.Level > 0) logic.Level--;
-                                logic.k=0;
-                                ShowLevel(_gr);
-                                break;
-                            case '+':
-                                if (logic.Level < MaxLevel) logic.Level++;
-                                logic.k=0;
-                                ShowLevel(_gr);
-                                break;
-                        }
+                    Delay(50);//perhaps unneeded
+//                    if (KeyPressed) {
+//                        KeyPressed = false;
+//                        switch (ch) {
+//                            case Event.LEFT:
+//                        		if (logic.canMoveLeft()) {
+//                        		    HideFigure(Fig);
+//                        		    logic.moveLeft();
+//                        		    DrawFigure(Fig);
+//                        		}
+//                                break;
+//                            case Event.RIGHT:
+//                        		if (logic.canMoveRight()) {
+//                        		    HideFigure(Fig);
+//                        		    logic.moveRight();
+//                        		    DrawFigure(Fig);
+//                        		}
+//                                break;
+//                            case Event.UP:
+//                            	logic.scrollColorsUp();
+//                        		DrawFigure(Fig);
+//                                break;
+//                            case Event.DOWN:
+//                            	logic.scrollColorsDown();
+//                        		DrawFigure(Fig);
+//                                break;
+//                            case ' ':
+//                                HideFigure(Fig);
+//                                logic.DropFigure();
+//                                DrawFigure(Fig);
+//                                tc = 0;
+//                                break;
+//                            case 'P':
+//                            case 'p':
+//                                while (!KeyPressed) {
+//                                    HideFigure(Fig);
+//                                    Delay(500);
+//                                    DrawFigure(Fig);
+//                                    Delay(500);
+//                                }
+//                                tc = System.currentTimeMillis();
+//                                break;
+//                            case '-':
+//                                if (logic.Level > 0) logic.Level--;
+//                                logic.k=0;
+//                                ShowLevel(_gr);
+//                                break;
+//                            case '+':
+//                                if (logic.Level < MaxLevel) logic.Level++;
+//                                logic.k=0;
+//                                ShowLevel(_gr);
+//                                break;
+//                        }
+//                    }
+                    while (isPaused) {
+                        HideFigure(Fig);
+                        Delay(500);
+                        DrawFigure(Fig);
+                        Delay(500);
                     }
-                } while ( (int)(System.currentTimeMillis()-tc) <= (MaxLevel-logic.Level)*TimeShift+MinTimeShift );
+                } while ( (int)(System.currentTimeMillis()-tc) <= getDelay() );
             };
             logic.PasteFigure();
             do {
@@ -233,6 +328,9 @@ void Delay(long t) {
             } while (!logic.NoChanges);
         }while (!FullField());
     }
+	private int getDelay() {
+		return (MaxLevel-logic.Level)*TimeShift+MinTimeShift;
+	}
     
 	void ShowHelp(Graphics g) {
         g.setColor(Color.black);
@@ -263,13 +361,13 @@ void Delay(long t) {
         //		setBackground (new Color(180,180,180));
         
         if (thr == null) {
-            thr = new Thread(this);
-            thr.start();
+//            thr = new Thread(this);
+//            thr.start();
         }
     }
     public void stop() {
         if (thr != null) {
-            thr.stop();
+//            thr.stop();
             thr = null;
         }
     }
