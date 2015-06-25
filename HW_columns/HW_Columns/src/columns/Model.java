@@ -16,11 +16,6 @@ public class Model {
 		_listeners.remove(listener);
 	}
 	
-	void fireMovedEvent() {
-		for (ModelListener modelListener : _listeners) {
-			modelListener.onMove();
-		}
-	}
 
 	void moveLeft() {
 		if (_logic.moveLeft()) {
@@ -37,7 +32,41 @@ public class Model {
 		if (_logic.moveDown()) {
 			fireMovedEvent();
 		}
-		
+		else while (_logic.processField()) {//while there are changes
+			fireFieldChangedEvent();
+			packField();
+		}
+	}
+	void dropFigure() {
+		_logic.DropFigure();
+		fireMovedEvent();
+		while (_logic.processField()) {//while there are changes
+			fireFieldChangedEvent();
+			packField();
+		}
 	}
 
+	void packField() {
+		_logic.PackField();
+		fireFieldPackedEvent();
+	}
+	
+	private void fireMovedEvent() {
+		for (ModelListener modelListener : _listeners) {
+			modelListener.onMove();
+		}
+	}
+	private void fireFieldChangedEvent() {
+		System.out.println("fire field changed");
+		for (ModelListener modelListener : _listeners) {
+			modelListener.onFieldChange();
+		}
+	}
+
+
+	private void fireFieldPackedEvent() {
+		for (ModelListener modelListener : _listeners) {
+			modelListener.onFieldPack();
+		}
+	}
 }

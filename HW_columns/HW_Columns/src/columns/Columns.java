@@ -58,6 +58,7 @@ public class Columns extends Applet  implements ModelListener {
         catch (InterruptedException e) {};
     }
     
+//    swapped the coordinates!
     void DrawBox(int x, int y, int c) {
         if (c==0) {		//empty box
             _gr.setColor(Color.black);
@@ -81,20 +82,23 @@ public class Columns extends Applet  implements ModelListener {
     }
     
     void DrawField(Graphics g) {
+    	
         int i,j;
         for (i=1; i<=Depth; i++) {
             for (j=1; j<=Width; j++) {
-                DrawBox(j,i,logic.Fnew[j][i]);
+                DrawBox(j,i,logic.Fnew[i][j]);
             }
         }
+        System.out.println("Field drawn");
+        Delay(1000);
     }
     
     void DrawFigure(Figure f) {
-    	saveX = f.x;
-    	saveY = f.y;
-        DrawBox(f.x,f.y,f.c[1]);
-        DrawBox(f.x,f.y+1,f.c[2]);
-        DrawBox(f.x,f.y+2,f.c[3]);
+    	saveX = f.col;
+    	saveY = f.row;
+        DrawBox(f.col,f.row,f.c[1]);
+        DrawBox(f.col,f.row+1,f.c[2]);
+        DrawBox(f.col,f.row+2,f.c[3]);
     }
     
     //  Essentially a game over check. Check if any of the top boxes if colored.
@@ -114,12 +118,13 @@ public class Columns extends Applet  implements ModelListener {
     }
     
     void HideFigure(Figure f) {
-        DrawBox(f.x,f.y,0);
-        DrawBox(f.x,f.y+1,0);
-        DrawBox(f.x,f.y+2,0);
+        DrawBox(f.col,f.row,0);
+        DrawBox(f.col,f.row+1,0);
+        DrawBox(f.col,f.row+2,0);
     }
     public void init() {
         _gr = getGraphics();
+        setSize(500, 800);
         model.addListener(this);
         
         Thread thread = new Thread(new Runnable() {
@@ -129,38 +134,40 @@ public class Columns extends Applet  implements ModelListener {
 	            Fig = logic.getFigure();
 				while (!FullField()) {
 //					System.out.println("show");
+					Fig = logic.getFigure();
 					DrawFigure(Fig);
 //					System.out.println("long delay "+getDelay()+1000);
-					Delay(getDelay()+1000);
-					if (logic.canMoveDown()) {
-						HideFigure(Fig);
-						logic.moveDown();
-						DrawFigure(Fig);
-					}
-					else {
-			            logic.PasteFigure();
-			            do {
-			            	logic.NoChanges = true;
-			            	TestField();
-			            	if (!logic.NoChanges) {
-			            		System.out.println("Small delay");
-			            		Delay(500);
-			            		logic.PackField();
-			            		DrawField(_gr);
-			            		logic.Score += logic.DScore;
-			            		ShowScore(_gr);
-			            		if (logic.k>=FigToDrop) {
-			            			logic.k = 0;
-			            			if (logic.Level<MaxLevel) logic.Level++;
-			            				ShowLevel(_gr);
-			            		}
-			            	}
-			            } while (!logic.NoChanges);
-			            System.out.println("new");
-			            logic.newFigure();
-			            Fig = logic.getFigure();
-//			            DrawFigure(Fig);
-					}				
+					Delay(700);
+					model.moveDown();
+//					if (logic.canMoveDown()) {
+//						HideFigure(Fig);
+//						logic.moveDown();
+//						DrawFigure(Fig);
+//					}
+//					else {
+//			            logic.PasteFigure();
+//			            do {
+//			            	logic.NoChanges = true;
+//			            	TestField();
+//			            	if (!logic.NoChanges) {
+//			            		System.out.println("Small delay");
+//			            		Delay(500);
+//			            		logic.PackField();
+//			            		DrawField(_gr);
+//			            		logic.Score += logic.DScore;
+//			            		ShowScore(_gr);
+//			            		if (logic.k>=FigToDrop) {
+//			            			logic.k = 0;
+//			            			if (logic.Level<MaxLevel) logic.Level++;
+//			            				ShowLevel(_gr);
+//			            		}
+//			            	}
+//			            } while (!logic.NoChanges);
+//			            System.out.println("new");
+//			            logic.newFigure();
+//			            Fig = logic.getFigure();
+////			            DrawFigure(Fig);
+//					}				
 				}
 			}
         });
@@ -192,10 +199,11 @@ public class Columns extends Applet  implements ModelListener {
     		DrawFigure(Fig);
             break;
         case ' ':
-            HideFigure(Fig);
-            logic.DropFigure();
-            DrawFigure(Fig);
-            tc = 0;
+//            HideFigure(Fig);
+//            logic.DropFigure();
+//            DrawFigure(Fig);
+//            tc = 0;
+        	model.dropFigure();
             break;
         case 80://'P':
         case 112://'p':
@@ -404,12 +412,35 @@ public class Columns extends Applet  implements ModelListener {
             }
         }
     }
+    private void moveFigure(Figure fig) {
+    	myHideFigure(saveX, saveY);
+    	DrawFigure(fig);		
+    }
+
     @Override
     public void onMove() {
     	moveFigure(Fig);
-    }
-	private void moveFigure(Figure fig) {
-		myHideFigure(saveX, saveY);
-		DrawFigure(fig);		
+    }    
+    
+	@Override
+	public void onFieldChange() {
+//		System.out.println("onFieldChange");
+		for (int i=1; i<=Depth; i++) {
+			for (int j=1; j<=Width; j++) {
+				if (logic.Fold[i][j]==8) {
+					System.out.println("Deleted box found at "+j+","+i);
+					DrawBox(j, i, 8);
+				}
+			}
+		}
+		Delay(2500);
+	}
+	@Override
+	public void onFieldPack() {
+		System.out.println("onFieldPack");
+		DrawField(_gr);
+		ShowLevel(_gr);
+		ShowScore(_gr);
+//		repaint(); //should probably replace the above calls
 	}
 }
