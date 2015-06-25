@@ -5,18 +5,15 @@ import java.awt.*;
 import java.util.*;
 
 
-public class Columns extends Applet  implements ModelListener {
+public class Columns extends Applet {
     static final int
     SL=25,			//box size in pixels
-    Depth=15,		//field height in boxes
-    Width=7,		//field width in boxes
     MaxLevel=7,
     TimeShift=250,
     FigToDrop=33,	//max number of lines built for level
     MinTimeShift=200,	//time delay on the highest level
     LeftBorder=2,
     TopBorder=2;
-    
     
     Color MyStyles[] = {Color.black,Color.cyan,Color.blue,Color.red,Color.green,
     Color.yellow,Color.pink,Color.magenta,Color.black};
@@ -29,16 +26,14 @@ public class Columns extends Applet  implements ModelListener {
     boolean KeyPressed = false;
     boolean isPaused = false;
     Graphics _gr;
-    
-    Thread thr = null;
-    
-//VVY
-    Model model = new Model();
-    Logic logic = model._logic;
-    Figure Fig = logic.getFigure();
 
-	private int saveX;
-	private int saveY;
+    View view;
+    Controller controller;
+    Thread thr = null;
+    Model model;
+    Logic logic;
+    
+    Figure Fig;
 
 //if (a,b),(c,d),(j,i) boxes are of the same color, replace them with a
 // replacement dummy (empty box with thick white border), set the flag
@@ -51,14 +46,6 @@ public class Columns extends Applet  implements ModelListener {
         	DrawBox(c,d,8);
         }
     }
-    void Delay(long t) {
-        try {
-            Thread.sleep(t);
-        }
-        catch (InterruptedException e) {};
-    }
-    
-//    swapped the coordinates!
     void DrawBox(int x, int y, int c) {
         if (c==0) {		//empty box
             _gr.setColor(Color.black);
@@ -80,100 +67,60 @@ public class Columns extends Applet  implements ModelListener {
         }
         //		g.setColor (Color.black);
     }
-    
-    void DrawField(Graphics g) {
-    	
-        int i,j;
-        for (i=1; i<=Depth; i++) {
-            for (j=1; j<=Width; j++) {
-                DrawBox(j,i,logic.Fnew[i][j]);
-            }
-        }
-        System.out.println("Field drawn");
-        Delay(1000);
-    }
-    
-    void DrawFigure(Figure f) {
-    	saveX = f.col;
-    	saveY = f.row;
-        DrawBox(f.col,f.row,f.c[1]);
-        DrawBox(f.col,f.row+1,f.c[2]);
-        DrawBox(f.col,f.row+2,f.c[3]);
-    }
-    
+        
     //  Essentially a game over check. Check if any of the top boxes if colored.
     boolean FullField() {
         int i;
-        for (i=1; i<=Width; i++) {
+        for (i=1; i<=View.Width; i++) {
             if (logic.Fnew[i][3]>0)
                 return true;
         }
         return false;
     }
-//  temporary, unchecked
-    void myHideFigure(int saveX, int saveY) {
-        DrawBox(saveX,saveY,0);
-        DrawBox(saveX,saveY+1,0);
-        DrawBox(saveX,saveY+2,0);   	
-    }
     
-    void HideFigure(Figure f) {
-        DrawBox(f.col,f.row,0);
-        DrawBox(f.col,f.row+1,0);
-        DrawBox(f.col,f.row+2,0);
-    }
     public void init() {
         _gr = getGraphics();
         setSize(500, 800);
-        model.addListener(this);
+
+        model = new Model();
+        logic = model._logic;
+        Fig = logic.getFigure();
+        controller = new Controller();
         
+        view = new View();
+        Columns self = this;
+        view.setGraphics(new MyGraphics() {
+
+			@Override
+			public void DrawBox(int x, int y, int c) {
+				self.DrawBox(x, y, c);				
+			}
+        	
+        });
+        
+        controller.setModel(model);
+        controller.setView(view);
+        
+        model.addListener(controller);       
         Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-	            logic.newFigure();
-	            Fig = logic.getFigure();
+//	            logic.newFigure();
+//	            Fig = logic.getFigure();
+//	            view.DrawFigure(logic);
 				while (!FullField()) {
-//					System.out.println("show");
 					Fig = logic.getFigure();
-					DrawFigure(Fig);
-//					System.out.println("long delay "+getDelay()+1000);
-					Delay(700);
+					view.DrawFigure(logic); //needed because of side effect. FIX!
+					Utils.Delay(getDelay());
 					model.moveDown();
-//					if (logic.canMoveDown()) {
-//						HideFigure(Fig);
-//						logic.moveDown();
-//						DrawFigure(Fig);
-//					}
-//					else {
-//			            logic.PasteFigure();
-//			            do {
-//			            	logic.NoChanges = true;
-//			            	TestField();
-//			            	if (!logic.NoChanges) {
-//			            		System.out.println("Small delay");
-//			            		Delay(500);
-//			            		logic.PackField();
-//			            		DrawField(_gr);
-//			            		logic.Score += logic.DScore;
-//			            		ShowScore(_gr);
-//			            		if (logic.k>=FigToDrop) {
-//			            			logic.k = 0;
-//			            			if (logic.Level<MaxLevel) logic.Level++;
-//			            				ShowLevel(_gr);
-//			            		}
-//			            	}
-//			            } while (!logic.NoChanges);
-//			            System.out.println("new");
-//			            logic.newFigure();
-//			            Fig = logic.getFigure();
-////			            DrawFigure(Fig);
-//					}				
 				}
 			}
         });
+        
 		thread.setDaemon(true);
 		thread.start();
     }
+//  Event is obsolete, replace with AWTEvent
     public boolean keyDown(Event e, int k) {
 //        KeyPressed = true;
 //        ch = e.key;
@@ -192,27 +139,18 @@ public class Columns extends Applet  implements ModelListener {
             break;
         case Event.UP:
         	logic.scrollColorsUp();
-    		DrawFigure(Fig);
+    		view.DrawFigure(logic);
             break;
         case Event.DOWN:
         	logic.scrollColorsDown();
-    		DrawFigure(Fig);
+    		view.DrawFigure(logic);
             break;
         case ' ':
-//            HideFigure(Fig);
-//            logic.DropFigure();
-//            DrawFigure(Fig);
-//            tc = 0;
+//        	Delay(5000);
         	model.dropFigure();
             break;
         case 80://'P':
         case 112://'p':
-//            while (!KeyPressed) {
-//                HideFigure(Fig);
-//                Delay(500);
-//                DrawFigure(Fig);
-//                Delay(500);
-//            }
         	isPaused=true; //fix later or move back to run()
             tc = System.currentTimeMillis();
             break;
@@ -242,8 +180,8 @@ public class Columns extends Applet  implements ModelListener {
         
         ShowLevel(g);
         ShowScore(g);
-        DrawField(g);
-        DrawFigure(logic.Fig); //FIX!!
+        view.DrawField(logic.Fnew);        
+        view.DrawFigure(logic);
         requestFocus();
 //        System.out.println("paint called");
     }
@@ -257,17 +195,17 @@ public class Columns extends Applet  implements ModelListener {
             tc = System.currentTimeMillis();
             logic.newFigure();
             Fig = logic.getFigure();
-            DrawFigure(Fig);
+            view.DrawFigure(logic);
             while (logic.canMoveDown()) {
                 if ((int)(System.currentTimeMillis()-tc)>getDelay()) {
                     tc = System.currentTimeMillis();
-                    HideFigure(Fig);
+                    view.HideFigure(Fig);
                     logic.moveDown();
-                    DrawFigure(Fig);
+                    view.DrawFigure(logic);
                 }
                 logic.DScore = 0;
                 do {
-                    Delay(50);//perhaps unneeded
+                    Utils.Delay(50);//perhaps unneeded
 //                    if (KeyPressed) {
 //                        KeyPressed = false;
 //                        switch (ch) {
@@ -275,28 +213,28 @@ public class Columns extends Applet  implements ModelListener {
 //                        		if (logic.canMoveLeft()) {
 //                        		    HideFigure(Fig);
 //                        		    logic.moveLeft();
-//                        		    DrawFigure(Fig);
+//                        		    DrawFigure(logic);
 //                        		}
 //                                break;
 //                            case Event.RIGHT:
 //                        		if (logic.canMoveRight()) {
 //                        		    HideFigure(Fig);
 //                        		    logic.moveRight();
-//                        		    DrawFigure(Fig);
+//                        		    DrawFigure(logic);
 //                        		}
 //                                break;
 //                            case Event.UP:
 //                            	logic.scrollColorsUp();
-//                        		DrawFigure(Fig);
+//                        		DrawFigure(logic);
 //                                break;
 //                            case Event.DOWN:
 //                            	logic.scrollColorsDown();
-//                        		DrawFigure(Fig);
+//                        		DrawFigure(logic);
 //                                break;
 //                            case ' ':
 //                                HideFigure(Fig);
 //                                logic.DropFigure();
-//                                DrawFigure(Fig);
+//                                DrawFigure(logic);
 //                                tc = 0;
 //                                break;
 //                            case 'P':
@@ -304,7 +242,7 @@ public class Columns extends Applet  implements ModelListener {
 //                                while (!KeyPressed) {
 //                                    HideFigure(Fig);
 //                                    Delay(500);
-//                                    DrawFigure(Fig);
+//                                    DrawFigure(logic);
 //                                    Delay(500);
 //                                }
 //                                tc = System.currentTimeMillis();
@@ -322,10 +260,10 @@ public class Columns extends Applet  implements ModelListener {
 //                        }
 //                    }
                     while (isPaused) {
-                        HideFigure(Fig);
-                        Delay(500);
-                        DrawFigure(Fig);
-                        Delay(500);
+                        view.HideFigure(Fig);
+                        Utils.Delay(500);
+                        view.DrawFigure(logic);
+                        Utils.Delay(500);
                     }
                 } while ( (int)(System.currentTimeMillis()-tc) <= getDelay() );
             };
@@ -334,9 +272,9 @@ public class Columns extends Applet  implements ModelListener {
                 logic.NoChanges = true;
                 TestField();
                 if (!logic.NoChanges) {
-                    Delay(500);
+                    Utils.Delay(500);
                     logic.PackField();
-                    DrawField(_gr);
+                    view.DrawField(logic.Fnew);
                     logic.Score += logic.DScore;
                     ShowScore(_gr);
                     if (logic.k>=FigToDrop) {
@@ -396,13 +334,13 @@ public class Columns extends Applet  implements ModelListener {
     void TestField() {
         int i,j;
 //   deep copy the field
-        for (i=1; i<=Depth; i++) {
-            for (j=1; j<=Width; j++) {
+        for (i=1; i<=View.Depth; i++) {
+            for (j=1; j<=View.Width; j++) {
                 logic.Fold[j][i] = logic.Fnew [j][i];
             }
         }
-        for (i=1; i<=Depth; i++) {
-            for (j=1; j<=Width; j++) {
+        for (i=1; i<=View.Depth; i++) {
+            for (j=1; j<=View.Width; j++) {
                 if (logic.Fnew[j][i]>0) {
                     CheckNeighbours(j,i-1,j,i+1,i,j);	//horizontal
                     CheckNeighbours(j-1,i,j+1,i,i,j);	//vertical
@@ -412,35 +350,4 @@ public class Columns extends Applet  implements ModelListener {
             }
         }
     }
-    private void moveFigure(Figure fig) {
-    	myHideFigure(saveX, saveY);
-    	DrawFigure(fig);		
-    }
-
-    @Override
-    public void onMove() {
-    	moveFigure(Fig);
-    }    
-    
-	@Override
-	public void onFieldChange() {
-//		System.out.println("onFieldChange");
-		for (int i=1; i<=Depth; i++) {
-			for (int j=1; j<=Width; j++) {
-				if (logic.Fold[i][j]==8) {
-					System.out.println("Deleted box found at "+j+","+i);
-					DrawBox(j, i, 8);
-				}
-			}
-		}
-		Delay(2500);
-	}
-	@Override
-	public void onFieldPack() {
-		System.out.println("onFieldPack");
-		DrawField(_gr);
-		ShowLevel(_gr);
-		ShowScore(_gr);
-//		repaint(); //should probably replace the above calls
-	}
 }

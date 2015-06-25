@@ -4,7 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Model {
-	Logic _logic = new Logic();
+	Logic _logic;
+	
+	public Model() {
+		Field field = new Field(View.Depth,View.Width);
+		State state = new State();
+		state.setField(field);
+		_logic = new Logic(state);
+		_logic.newFigure();
+		state.setFigure(_logic.getFigure());
+	}
+
 
 	List<ModelListener> _listeners = new ArrayList<>();
 	

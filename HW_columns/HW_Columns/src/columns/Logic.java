@@ -1,5 +1,7 @@
 package columns;
 
+import java.util.Arrays;
+
 public class Logic {
 
 	Figure Fig = new Figure();
@@ -12,10 +14,11 @@ public class Logic {
 	int k;		  //triplet counter
 	int saveDelRow;
 	int saveDelCol;
+	private State _state;
 	
 	Logic() {
-        Fnew = new int[Columns.Depth+2][Columns.Width+2];
-        Fold = new int[Columns.Depth+2][Columns.Width+2];
+        Fnew = new int[View.Depth+2][View.Width+2];
+        Fold = new int[View.Depth+2][View.Width+2];
 //        for (int i=0; i<Columns.Width+1; i++){
 //            for (int j=0; j<Columns.Depth+1; j++) {
 //                Fnew[i][j] = 0;
@@ -27,6 +30,14 @@ public class Logic {
         k = 0;
 	}
 
+	public Logic(final State state) {
+		this();
+		_state = state;
+	}
+
+	State getState() {
+		return _state;
+	}
 	public Figure getFigure() {
 		return Fig;
 	}
@@ -37,7 +48,7 @@ public class Logic {
 
 	boolean moveLeft() {
 		if (canMoveLeft()) {
-			Fig.col--;
+			_state.col--;
 			return true;
 		}
 		else return false;
@@ -45,7 +56,7 @@ public class Logic {
 
 	boolean moveRight() {
 		if (canMoveRight()) {
-			Fig.col++;
+			_state.col++;
 			return true;
 		}
 		else return false;
@@ -53,12 +64,13 @@ public class Logic {
 
 	boolean moveDown() {
 		if (canMoveDown()) {
-			Fig.row++;
+			_state.row++;
 			return true;
 		}
 		else {
 			PasteFigure();			
 			Fig = new Figure();
+			_state.setFigure(Fig);
 			return false;
 		}
 	}
@@ -79,30 +91,32 @@ public class Logic {
 
 	void PasteFigure() {
 		System.out.println("pasted");
-	    Fnew[Fig.row][Fig.col] = Fig.c[1];
-	    Fnew[Fig.row+1][Fig.col] = Fig.c[2];
-	    Fnew[Fig.row+2][Fig.col] = Fig.c[3];
+		int row = _state.row;
+		int col = _state.col;
+	    Fnew[row][col] = Fig.c[1];
+	    Fnew[row+1][col] = Fig.c[2];
+	    Fnew[row+2][col] = Fig.c[3];
 	}
 
 	boolean canMoveLeft() {
-		return (Fig.col>1) && (Fnew[Fig.row+2][Fig.col-1]==0);
+		return (_state.col>1) && (Fnew[_state.row+2][_state.col-1]==0);
 	}
 	
 	boolean canMoveRight() {
-		return (Fig.col<Columns.Width) && (Fnew[Fig.row+2][Fig.col+1]==0);
+		return (_state.col<View.Width) && (Fnew[_state.row+2][_state.col+1]==0);
 	}
 	boolean canMoveDown() {
-		return (Fig.row<Columns.Depth-2) && (Fnew[Fig.row+3][Fig.col]==0);
+		return (_state.row<View.Depth-2) && (Fnew[_state.row+3][_state.col]==0);
 	}
 
 	void DropFigure() {
 	    int zz;
-	    if (Fig.row < Columns.Depth-2) {//if the figure is not at the bottom
-	        zz = Columns.Depth;	//find the first colored box under it (or the bottom)
-	        while (Fnew[zz][Fig.col]>0) 
+	    if (_state.row < View.Depth-2) {//if the figure is not at the bottom
+	        zz = View.Depth;	//find the first colored box under it (or the bottom)
+	        while (Fnew[zz][_state.col]>0) 
 	        	zz--;
-	        DScore = (((Level+1)*(Columns.Depth*2-Fig.row-zz) * 2) % 5) * 5;
-	        Fig.row = zz-2;		//drop
+	        DScore = (((Level+1)*(View.Depth*2-_state.row-zz) * 2) % 5) * 5;
+	        _state.row = zz-2;		//drop
 	    }
 	}
 
@@ -127,9 +141,9 @@ public class Logic {
 
 	void PackField() {
 	    int col,row,n;
-	    for (col=1; col<=Columns.Width; col++) {
-	        n = Columns.Depth;
-	        for (row=Columns.Depth; row>0; row--) {
+	    for (col=1; col<=View.Width; col++) {
+	        n = View.Depth;
+	        for (row=View.Depth; row>0; row--) {
 	            if (Fold[row][col]>0 && Fold[row][col]!=8) {
 	                Fnew[n][col] = Fold[row][col];
 	                n--;
@@ -146,9 +160,11 @@ public class Logic {
 	
 	public boolean processField() {		
 		NoChanges=true;
+		for (int row=View.Depth-2; row<=View.Depth; row++)
+			System.out.println(Arrays.toString(Fnew[row]));
 		copyField(); //a side effect used by packField, fix later!
-        for (int row=1; row<=Columns.Depth; row++) {
-            for (int col=1; col<=Columns.Width; col++) {
+        for (int row=1; row<=View.Depth; row++) {
+            for (int col=1; col<=View.Width; col++) {
                 if (Fnew[row][col]>0) {
                     processNeighbours(row-1,col,row+1,col, row,col);	//horizontal
                     processNeighbours(row, col-1, row,col+1, row,col);	//vertical
