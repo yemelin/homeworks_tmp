@@ -5,7 +5,7 @@ import java.awt.*;
 import java.util.*;
 
 
-public class Columns extends Applet {
+public class Columns2 extends Applet {
     static final int
     SL=25,			//box size in pixels
     MaxLevel=7,
@@ -88,7 +88,7 @@ public class Columns extends Applet {
         controller = new Controller();
         
         view = new View();
-        Columns self = this;
+        Columns2 self = this;
         view.setGraphics(new MyGraphics() {
 
 			@Override
@@ -183,6 +183,106 @@ public class Columns extends Applet {
 //        System.out.println("paint called");
     }
     
+    
+    public void run2() {
+        _gr.setColor(Color.black);
+        requestFocus();
+        
+        do {
+            tc = System.currentTimeMillis();
+            logic.newFigure();
+            Fig = logic.getFigure();
+            view.DrawFigure(logic);
+            while (logic.canMoveDown()) {
+                if ((int)(System.currentTimeMillis()-tc)>getDelay()) {
+                    tc = System.currentTimeMillis();
+                    view.HideFigure(Fig);
+                    logic.moveDown();
+                    view.DrawFigure(logic);
+                }
+                logic.DScore = 0;
+                do {
+                    Utils.Delay(50);//perhaps unneeded
+//                    if (KeyPressed) {
+//                        KeyPressed = false;
+//                        switch (ch) {
+//                            case Event.LEFT:
+//                        		if (logic.canMoveLeft()) {
+//                        		    HideFigure(Fig);
+//                        		    logic.moveLeft();
+//                        		    DrawFigure(logic);
+//                        		}
+//                                break;
+//                            case Event.RIGHT:
+//                        		if (logic.canMoveRight()) {
+//                        		    HideFigure(Fig);
+//                        		    logic.moveRight();
+//                        		    DrawFigure(logic);
+//                        		}
+//                                break;
+//                            case Event.UP:
+//                            	logic.scrollColorsUp();
+//                        		DrawFigure(logic);
+//                                break;
+//                            case Event.DOWN:
+//                            	logic.scrollColorsDown();
+//                        		DrawFigure(logic);
+//                                break;
+//                            case ' ':
+//                                HideFigure(Fig);
+//                                logic.DropFigure();
+//                                DrawFigure(logic);
+//                                tc = 0;
+//                                break;
+//                            case 'P':
+//                            case 'p':
+//                                while (!KeyPressed) {
+//                                    HideFigure(Fig);
+//                                    Delay(500);
+//                                    DrawFigure(logic);
+//                                    Delay(500);
+//                                }
+//                                tc = System.currentTimeMillis();
+//                                break;
+//                            case '-':
+//                                if (logic.Level > 0) logic.Level--;
+//                                logic.k=0;
+//                                ShowLevel(_gr);
+//                                break;
+//                            case '+':
+//                                if (logic.Level < MaxLevel) logic.Level++;
+//                                logic.k=0;
+//                                ShowLevel(_gr);
+//                                break;
+//                        }
+//                    }
+                    while (isPaused) {
+                        view.HideFigure(Fig);
+                        Utils.Delay(500);
+                        view.DrawFigure(logic);
+                        Utils.Delay(500);
+                    }
+                } while ( (int)(System.currentTimeMillis()-tc) <= getDelay() );
+            };
+            logic.PasteFigure();
+            do {
+                logic.NoChanges = true;
+                TestField();
+                if (!logic.NoChanges) {
+                    Utils.Delay(500);
+                    logic.PackField();
+                    view.DrawField(logic.Fnew);
+                    logic.Score += logic.DScore;
+                    ShowScore(_gr);
+                    if (logic.k>=FigToDrop) {
+                        logic.k = 0;
+                        if (logic.Level<MaxLevel) logic.Level++;
+                        ShowLevel(_gr);
+                    }
+                }
+            } while (!logic.NoChanges);
+        }while (!FullField());
+    }
 	private int getDelay() {
 		return (MaxLevel-logic.Level)*TimeShift+MinTimeShift;
 	}
@@ -224,6 +324,27 @@ public class Columns extends Applet {
         if (thr != null) {
 //            thr.stop();
             thr = null;
+        }
+    }
+
+// 
+    void TestField() {
+        int i,j;
+//   deep copy the field
+        for (i=1; i<=View.Depth; i++) {
+            for (j=1; j<=View.Width; j++) {
+                logic.Fold[j][i] = logic.Fnew [j][i];
+            }
+        }
+        for (i=1; i<=View.Depth; i++) {
+            for (j=1; j<=View.Width; j++) {
+                if (logic.Fnew[j][i]>0) {
+                    CheckNeighbours(j,i-1,j,i+1,i,j);	//horizontal
+                    CheckNeighbours(j-1,i,j+1,i,i,j);	//vertical
+                    CheckNeighbours(j-1,i-1,j+1,i+1,i,j);//diagonal
+                    CheckNeighbours(j+1,i-1,j-1,i+1,i,j);//diagonal
+                }
+            }
         }
     }
 }
