@@ -7,13 +7,10 @@ import java.util.*;
 
 public class Columns extends Applet {
     static final int
-    SL=25,			//box size in pixels
     MaxLevel=7,
     TimeShift=250,
     FigToDrop=33,	//max number of lines built for level
-    MinTimeShift=200,	//time delay on the highest level
-    LeftBorder=2,
-    TopBorder=2;
+    MinTimeShift=200;	//time delay on the highest level
     
     Color MyStyles[] = {Color.black,Color.cyan,Color.blue,Color.red,Color.green,
     Color.yellow,Color.pink,Color.magenta,Color.black};
@@ -29,45 +26,20 @@ public class Columns extends Applet {
 
     View view;
     Controller controller;
-    Thread thr = null;
     Model model;
     Logic logic;
-    
-    Figure Fig;
 
-//if (a,b),(c,d),(j,i) boxes are of the same color, replace them with a
-// replacement dummy (empty box with thick white border), set the flag
-// to signal the necessity to call PackField
-    void CheckNeighbours(int a, int b, int c, int d, int i, int j) {
-//    	System.out.println("checkneighbours");
-        if (logic.processNeighbours(a, b, c, d, i, j)) {
-        	DrawBox(a,b,8);
-        	DrawBox(j,i,8);
-        	DrawBox(c,d,8);
-        }
+    
+    void fillBox(int x, int y, int width, int height, int colorIndex, int bwidth){
+    	_gr.setColor(MyStyles[colorIndex]);
+    	_gr.fillRect(x, y, width, height);
+    	_gr.setColor(Color.BLACK);
+    	_gr.drawRect(x, y, width, height);
+    	_gr.setColor(Color.WHITE);
+    	for (int i=1; i<=bwidth; i++)
+    		_gr.drawRect(x+i, y+i, width-i*2, height-i*2);    	
     }
-    void DrawBox(int x, int y, int c) {
-        if (c==0) {		//empty box
-            _gr.setColor(Color.black);
-            _gr.fillRect(LeftBorder+x*SL-SL, TopBorder+y*SL-SL, SL, SL);
-            _gr.drawRect(LeftBorder+x*SL-SL, TopBorder+y*SL-SL, SL, SL);
-        }
-        else if (c==8) {	//replacement dummy box
-            _gr.setColor(Color.white);
-            _gr.drawRect(LeftBorder+x*SL-SL+1, TopBorder+y*SL-SL+1, SL-2, SL-2);
-            _gr.drawRect(LeftBorder+x*SL-SL+2, TopBorder+y*SL-SL+2, SL-4, SL-4);
-            _gr.setColor(Color.black);
-            _gr.fillRect(LeftBorder+x*SL-SL+3, TopBorder+y*SL-SL+3, SL-6, SL-6);
-        }
-        else {	//colored box
-            _gr.setColor(MyStyles[c]);
-            _gr.fillRect(LeftBorder+x*SL-SL, TopBorder+y*SL-SL, SL, SL);
-            _gr.setColor(Color.black);
-            _gr.drawRect(LeftBorder+x*SL-SL, TopBorder+y*SL-SL, SL, SL);
-        }
-        //		g.setColor (Color.black);
-    }
-        
+    
     //  Essentially a game over check. Check if any of the top boxes if colored.
     boolean FullField() {
         int i;
@@ -80,11 +52,10 @@ public class Columns extends Applet {
     
     public void init() {
         _gr = getGraphics();
-        setSize(500, 800);
+        setSize(250, 500);
 
         model = new Model();
         logic = model._logic;
-        Fig = logic.getFigure();
         controller = new Controller();
         
         view = new View();
@@ -92,8 +63,10 @@ public class Columns extends Applet {
         view.setGraphics(new MyGraphics() {
 
 			@Override
-			public void DrawBox(int x, int y, int c) {
-				self.DrawBox(x, y, c);				
+			public void fillBox(int x, int y, int width, int height,
+					int colorIndex, int bwidth) {
+				self.fillBox(x, y, width, height, colorIndex, bwidth);
+				
 			}
         	
         });
@@ -106,13 +79,12 @@ public class Columns extends Applet {
 			@Override
 			public void run() {
 				while (!FullField()) {
-					Fig = logic.getFigure();
-					view.DrawFigure(logic); //needed because of side effect. FIX!
+//					view.DrawFigure(logic); //needed because of side effect. FIX!
 					Utils.Delay(getDelay());
 					model.moveDown();
 				}
 			}
-        });
+        }, "Timer");
         
 		thread.setDaemon(true);
 		thread.start();
@@ -186,7 +158,7 @@ public class Columns extends Applet {
 	private int getDelay() {
 		return (MaxLevel-logic.Level)*TimeShift+MinTimeShift;
 	}
-    
+/*    
 	void ShowHelp(Graphics g) {
         g.setColor(Color.black);
         
@@ -200,30 +172,15 @@ public class Columns extends Applet {
         g.drawString("Pause:           P",200-LeftBorder,180);
         g.drawString("Quit:     Esc or Q",200-LeftBorder,190);
     }
+    */
     void ShowLevel(Graphics g) {
         g.setColor(Color.black);
-        g.clearRect(LeftBorder+100,390,100,20);
-        g.drawString("Level: "+logic.Level,LeftBorder+100,400);
+        g.clearRect(View.LeftBorder+100,390,100,20);
+        g.drawString("Level: "+logic.Level,View.LeftBorder+100,400);
     }
     void ShowScore(Graphics g) {
         g.setColor(Color.black);
-        g.clearRect(LeftBorder,390,100,20);
-        g.drawString("Score: "+logic.Score,LeftBorder,400);
-    }
-    public void start() {
-        _gr.setColor(Color.black);
-        
-        //		setBackground (new Color(180,180,180));
-        
-        if (thr == null) {
-//            thr = new Thread(this);
-//            thr.start();
-        }
-    }
-    public void stop() {
-        if (thr != null) {
-//            thr.stop();
-            thr = null;
-        }
+        g.clearRect(View.LeftBorder,390,100,20);
+        g.drawString("Score: "+logic.Score,View.LeftBorder,400);
     }
 }

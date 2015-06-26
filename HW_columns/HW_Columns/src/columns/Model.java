@@ -46,14 +46,13 @@ public class Model {
 			fireFieldChangedEvent();
 			packField();
 		}
+		firenewFigureEvent();
 	}
+
 	void dropFigure() {
 		_logic.DropFigure();
 		fireMovedEvent();
-		while (_logic.processField()) {//while there are changes
-			fireFieldChangedEvent();
-			packField();
-		}
+		moveDown();
 	}
 
 	void packField() {
@@ -78,5 +77,11 @@ public class Model {
 		for (ModelListener modelListener : _listeners) {
 			modelListener.onFieldPack();
 		}
+	}
+	
+	private void firenewFigureEvent() {
+		for (ModelListener modelListener : _listeners) {
+			modelListener.onNewFigure();
+		}		
 	}
 }

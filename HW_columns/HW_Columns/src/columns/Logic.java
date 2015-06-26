@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class Logic {
 
-	Figure Fig = new Figure();
+	Figure Fig;
 	long DScore;  //drop bonus
 	long Score;
 	int Level;
@@ -63,6 +63,7 @@ public class Logic {
 	}
 
 	boolean moveDown() {
+		System.out.println("Move down from "+Thread.currentThread().getName());
 		if (canMoveDown()) {
 			_state.row++;
 			return true;
@@ -110,6 +111,7 @@ public class Logic {
 	}
 
 	void DropFigure() {
+		System.out.println("DropFigure from "+Thread.currentThread().getName());
 	    int zz;
 	    if (_state.row < View.Depth-2) {//if the figure is not at the bottom
 	        zz = View.Depth;	//find the first colored box under it (or the bottom)
@@ -160,8 +162,8 @@ public class Logic {
 	
 	public boolean processField() {		
 		NoChanges=true;
-		for (int row=View.Depth-2; row<=View.Depth; row++)
-			System.out.println(Arrays.toString(Fnew[row]));
+//		for (int row=View.Depth-2; row<=View.Depth; row++)
+//			System.out.println(Arrays.toString(Fnew[row]));
 		copyField(); //a side effect used by packField, fix later!
         for (int row=1; row<=View.Depth; row++) {
             for (int col=1; col<=View.Width; col++) {
@@ -176,6 +178,4 @@ public class Logic {
         System.out.println("processField, "+NoChanges);
 		return !NoChanges;
 	}
-
-	
 }

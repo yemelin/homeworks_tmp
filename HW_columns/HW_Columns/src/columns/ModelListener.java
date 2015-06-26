@@ -4,4 +4,5 @@ public interface ModelListener {
 	void onMove();
 	void onFieldChange();
 	void onFieldPack();
+	void onNewFigure();
 }

@@ -8,15 +8,22 @@ public class View {
 
 	static final int  Width=7;		//field width in boxes
 	static final int Depth=15;		//field height in boxes
-	
+    static final int
+    SL=25,			//box size in pixels
+    LeftBorder=2,
+    TopBorder=2;
+    
 	void setGraphics(final MyGraphics graphics) {
 		_graphics = graphics;
 	}
 	
-	void DrawBox(int x, int y, int c) {
-		_graphics.DrawBox(x, y, c);
-	}
-	
+   void DrawBox(int col, int row, int c) {
+    	int x = LeftBorder+col*SL-SL;
+    	int y= TopBorder+row*SL-SL;
+    	int mwidth = (c==8) ? 2:0;
+    	_graphics.fillBox(x,y,SL,SL,c,mwidth);
+    }
+	 	
     void DrawField(int[][] data) {
     	
         int i,j;
@@ -29,6 +36,7 @@ public class View {
 //        Delay(1000);
     }
     void DrawFigure(Figure f, int x, int y) {
+    	System.out.println("View.drawFigure from "+Thread.currentThread().getName());
     	saveX = x;
     	saveY = y;
         DrawBox(x,y,f.c[1]);
@@ -44,11 +52,12 @@ public class View {
     }
 
     void moveFigure(Figure fig, int x, int y) {
+    	Utils.Delay(200);
+    	System.out.println("View.moveFigure "+saveX+","+saveY);
     	myHideFigure(saveX, saveY);
     	DrawFigure(fig, x, y);		
     }
 
-    //    temporary hack! fix!
     void DrawFigure (Logic logic) {
     	State state = logic.getState();
     	DrawFigure(state.getFigure(), state.col, state.row);

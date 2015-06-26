@@ -30,12 +30,11 @@ public class Controller implements ModelListener {
 		for (int i=1; i<=View.Depth; i++) {
 			for (int j=1; j<=View.Width; j++) {
 				if (logic.Fold[i][j]==8) {
-					System.out.println("Deleted box found at "+j+","+i);
 					_view.DrawBox(j, i, 8);
 				}
 			}
 		}
-		Utils.Delay(2500);
+		Utils.Delay(500);
 	}
 	@Override
 	public void onFieldPack() {
@@ -44,5 +43,10 @@ public class Controller implements ModelListener {
 //		ShowLevel(_gr);
 //		ShowScore(_gr);
 //		repaint(); //should probably replace the above calls
+	}
+	
+	@Override
+	public void onNewFigure() {
+		_view.DrawFigure(logic);
 	}
 }
