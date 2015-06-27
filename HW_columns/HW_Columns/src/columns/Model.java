@@ -10,9 +10,9 @@ public class Model {
 		Field field = new Field(View.Depth,View.Width);
 		State state = new State();
 		state.setField(field);
+		state.setFigure(new Figure());
 		_logic = new Logic(state);
-		_logic.newFigure();
-		state.setFigure(_logic.getFigure());
+//		_logic.newFigure();
 	}
 
 
@@ -46,9 +46,19 @@ public class Model {
 			fireFieldChangedEvent();
 			packField();
 		}
-		firenewFigureEvent();
+		fireNewFigureEvent();
 	}
 
+	void scrollColorsUp() {
+		_logic.scrollColorsUp();
+		fireNewFigureEvent();
+	}
+
+	void scrollColorsDown() {
+		_logic.scrollColorsDown();
+		fireNewFigureEvent();
+	}
+		
 	void dropFigure() {
 		_logic.DropFigure();
 		fireMovedEvent();
@@ -62,26 +72,30 @@ public class Model {
 	
 	private void fireMovedEvent() {
 		for (ModelListener modelListener : _listeners) {
-			modelListener.onMove();
+			modelListener.onMove(_logic.getState());
 		}
 	}
 	private void fireFieldChangedEvent() {
 		System.out.println("fire field changed");
 		for (ModelListener modelListener : _listeners) {
-			modelListener.onFieldChange();
+			modelListener.onFieldChange(_logic.getState());
 		}
 	}
-
 
 	private void fireFieldPackedEvent() {
 		for (ModelListener modelListener : _listeners) {
-			modelListener.onFieldPack();
+			modelListener.onFieldPack(_logic.getState());
 		}
 	}
 	
-	private void firenewFigureEvent() {
+	private void fireNewFigureEvent() {
 		for (ModelListener modelListener : _listeners) {
-			modelListener.onNewFigure();
+			modelListener.onNewFigure(_logic.getState());
 		}		
+	}
+	
+	public void sendRepaintEvent(ModelListener ml) {
+		ml.onFieldPack(_logic.getState());
+		ml.onNewFigure(_logic.getState());
 	}
 }

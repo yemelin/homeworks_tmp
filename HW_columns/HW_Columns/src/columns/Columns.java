@@ -42,9 +42,10 @@ public class Columns extends Applet {
     
     //  Essentially a game over check. Check if any of the top boxes if colored.
     boolean FullField() {
+    	int[][] Fnew = logic.getState().getField().getData();
         int i;
         for (i=1; i<=View.Width; i++) {
-            if (logic.Fnew[i][3]>0)
+            if (Fnew[i][3]>0)
                 return true;
         }
         return false;
@@ -106,13 +107,11 @@ public class Columns extends Applet {
         case Event.RIGHT:
         	model.moveRight();
             break;
-        case Event.UP:
-        	logic.scrollColorsUp();
-    		view.DrawFigure(logic);
+        case Event.UP:       	
+        	model.scrollColorsUp();
             break;
         case Event.DOWN:
-        	logic.scrollColorsDown();
-    		view.DrawFigure(logic);
+        	model.scrollColorsDown();
             break;
         case ' ':
 //        	Delay(5000);
@@ -121,7 +120,6 @@ public class Columns extends Applet {
         case 80://'P':
         case 112://'p':
         	isPaused=true; //fix later or move back to run()
-            tc = System.currentTimeMillis();
             break;
         case '-':
             if (logic.Level > 0) logic.Level--;
@@ -149,8 +147,13 @@ public class Columns extends Applet {
         
         ShowLevel(g);
         ShowScore(g);
-        view.DrawField(logic.Fnew);        
-        view.DrawFigure(logic);
+//        System.out.println("Befre drawField");
+//        int [][] F = (logic.getState().getField().getData());
+//        for (int i=0; i<F.length; i++)
+//        	System.out.println(Arrays.toString(F[i]));
+//        view.DrawField(logic.getState().getField().getData());   
+//        view.DrawFigure(logic);
+        controller.requestRepaintEvent();
         requestFocus();
 //        System.out.println("paint called");
     }

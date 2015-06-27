@@ -1,8 +1,9 @@
 package columns;
 
 public interface ModelListener {
-	void onMove();
-	void onFieldChange();
-	void onFieldPack();
-	void onNewFigure();
+	void onMove(State state);
+//	void onScroll(State state);
+	void onFieldChange(State state);
+	void onFieldPack(State state);
+	void onNewFigure(State state);
 }

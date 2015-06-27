@@ -36,7 +36,7 @@ public class View {
 //        Delay(1000);
     }
     void DrawFigure(Figure f, int x, int y) {
-    	System.out.println("View.drawFigure from "+Thread.currentThread().getName());
+//    	System.out.println("View.drawFigure from "+Thread.currentThread().getName());
     	saveX = x;
     	saveY = y;
         DrawBox(x,y,f.c[1]);
@@ -52,20 +52,18 @@ public class View {
     }
 
     void moveFigure(Figure fig, int x, int y) {
-    	Utils.Delay(200);
-    	System.out.println("View.moveFigure "+saveX+","+saveY);
+//    	Utils.Delay(200);
+//    	System.out.println("View.moveFigure "+saveX+","+saveY);
     	myHideFigure(saveX, saveY);
     	DrawFigure(fig, x, y);		
     }
 
-    void DrawFigure (Logic logic) {
-    	State state = logic.getState();
+    void DrawFigure (State state) {
     	DrawFigure(state.getFigure(), state.col, state.row);
     }
-    void moveFigure(Logic logic) {
-    	State state = logic.getState();
-    	moveFigure(state.getFigure(), state.col, state.row);
-    	
+    
+    void moveFigure(State state) {
+    	moveFigure(state.getFigure(), state.col, state.row);    	
     }
 
 	void HideFigure(Figure f) {
