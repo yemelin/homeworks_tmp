@@ -64,4 +64,34 @@ public class Controller implements ModelListener {
 		_view.ShowLevel(state);
 		_view.ShowScore(state);		
 	}
+	public boolean FullField() {
+		return _model.FullField();
+	}
+	public void moveLeft() {
+		_model.moveLeft();
+		
+	}
+	public void moveRight() {
+		_model.moveRight();
+		
+	}
+	public void scrollColorsUp() {
+		_model.scrollColorsUp();		
+	}
+	public void scrollColorsDown() {
+		_model.scrollColorsDown();		
+	}
+	public void dropFigure() {
+		_model.dropFigure();				
+	}
+	public void levelDown() {
+		_model.levelDown();		
+	}
+	public void levelUp() {
+		_model.levelUp();		
+	}
+	public void moveDown() {
+		_model.moveDown();
+		
+	}
 }

@@ -5,163 +5,80 @@ import java.awt.*;
 import java.util.*;
 
 
-public class Columns2 extends Applet {
-    static final int
-    SL=25,			//box size in pixels
-    MaxLevel=7,
-    TimeShift=250,
-    FigToDrop=33,	//max number of lines built for level
-    MinTimeShift=200,	//time delay on the highest level
-    LeftBorder=2,
-    TopBorder=2;
+public class Columns2 extends Applet implements Runnable {
+  
+	static final int
+	TimeShift=250,
+	MinTimeShift=200;	//time delay on the highest level
     
     Color MyStyles[] = {Color.black,Color.cyan,Color.blue,Color.red,Color.green,
     Color.yellow,Color.pink,Color.magenta,Color.black};
     
-    
-    int	i, j, ii, 
-    	ch;	//saves the key pressed
-    long tc;		//time counter
+//    int Level, i, j, ii, k; 
+    int ch;
+//    long Score, DScore;
+    long tc;
     Font fCourier;
-    boolean KeyPressed = false;
-    boolean isPaused = false;
-    Graphics _gr;
-
-    View view;
-    Controller controller;
+//    Figure Fig;
+//    int Fnew[][],Fold[][];
+    boolean NoChanges = true, KeyPressed = false;
+    Graphics _gr;   
     Thread thr = null;
-    Model model;
-    Logic logic;
-    
-    Figure Fig;
+    Controller controller;
+//--------------------------------------    
 
-//if (a,b),(c,d),(j,i) boxes are of the same color, replace them with a
-// replacement dummy (empty box with thick white border), set the flag
-// to signal the necessity to call PackField
-    void CheckNeighbours(int a, int b, int c, int d, int i, int j) {
-//    	System.out.println("checkneighbours");
-        if (logic.processNeighbours(a, b, c, d, i, j)) {
-        	DrawBox(a,b,8);
-        	DrawBox(j,i,8);
-        	DrawBox(c,d,8);
-        }
-    }
-    void DrawBox(int x, int y, int c) {
-        if (c==0) {		//empty box
-            _gr.setColor(Color.black);
-            _gr.fillRect(LeftBorder+x*SL-SL, TopBorder+y*SL-SL, SL, SL);
-            _gr.drawRect(LeftBorder+x*SL-SL, TopBorder+y*SL-SL, SL, SL);
-        }
-        else if (c==8) {	//replacement dummy box
-            _gr.setColor(Color.white);
-            _gr.drawRect(LeftBorder+x*SL-SL+1, TopBorder+y*SL-SL+1, SL-2, SL-2);
-            _gr.drawRect(LeftBorder+x*SL-SL+2, TopBorder+y*SL-SL+2, SL-4, SL-4);
-            _gr.setColor(Color.black);
-            _gr.fillRect(LeftBorder+x*SL-SL+3, TopBorder+y*SL-SL+3, SL-6, SL-6);
-        }
-        else {	//colored box
-            _gr.setColor(MyStyles[c]);
-            _gr.fillRect(LeftBorder+x*SL-SL, TopBorder+y*SL-SL, SL, SL);
-            _gr.setColor(Color.black);
-            _gr.drawRect(LeftBorder+x*SL-SL, TopBorder+y*SL-SL, SL, SL);
-        }
-        //		g.setColor (Color.black);
-    }
-        
-    //  Essentially a game over check. Check if any of the top boxes if colored.
-    boolean FullField() {
-        int i;
-        for (i=1; i<=Field.Width; i++) {
-            if (logic.Fnew[i][3]>0)
-                return true;
-        }
-        return false;
-    }
-    
     public void init() {
         _gr = getGraphics();
-        setSize(500, 800);
+        setSize(250, 500);
 
-        model = new Model();
-        logic = model._logic;
-        Fig = logic.getFigure();
+        Model model = new Model();
         controller = new Controller();
         
-        view = new View();
-        Columns2 self = this;
+        View view = new View();
         view.setGraphics(new MyGraphics() {
 
 			@Override
-			public void DrawBox(int x, int y, int c) {
-				self.DrawBox(x, y, c);				
+			public void fillBox(int x, int y, int width, int height,
+					int colorIndex, int bwidth) {
+			    	_gr.setColor(MyStyles[colorIndex]);
+			    	_gr.fillRect(x, y, width, height);
+			    	_gr.setColor(Color.BLACK);
+			    	_gr.drawRect(x, y, width, height);
+			    	_gr.setColor(Color.WHITE);
+			    	for (int i=1; i<=bwidth; i++)
+			    		_gr.drawRect(x+i, y+i, width-i*2, height-i*2);    	
 			}
-        	
+
+			@Override
+			public void drawString(String s, int x, int y) {
+				_gr.setColor(Color.BLACK);
+		        _gr.clearRect(x,y,100,20);
+		        _gr.drawString(s,x,y+10);				
+			}        	
         });
         
         controller.setModel(model);
         controller.setView(view);
-        
         model.addListener(controller);       
-        Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (!FullField()) {
-					Fig = logic.getFigure();
-					view.DrawFigure(logic); //needed because of side effect. FIX!
-					Utils.Delay(getDelay());
-					model.moveDown();
-				}
-			}
-        });
         
-		thread.setDaemon(true);
-		thread.start();
+//        Thread thread = new Thread(new Runnable() {
+//			@Override
+//			public void run() {
+//				while (!controller.FullField()) {
+//					Utils.Delay(controller.getDelay());
+//					model.moveDown();
+//				}
+//			}
+//        }, "Timer");
+//        
+//		thread.setDaemon(true);
+//		thread.start();
     }
-//  Event is obsolete, replace with AWTEvent
+    
+    
     public boolean keyDown(Event e, int k) {
-//        KeyPressed = true;
-//        ch = e.key;
-    	KeyPressed = false;
-//    	if (isPaused)
-    	isPaused = false;
-        ch = k;
-//        System.out.println(ch);
-//------------------------------        
-        switch (ch) {
-        case Event.LEFT:
-        	model.moveLeft();
-            break;
-        case Event.RIGHT:
-        	model.moveRight();
-            break;
-        case Event.UP:
-        	logic.scrollColorsUp();
-    		view.DrawFigure(logic);
-            break;
-        case Event.DOWN:
-        	logic.scrollColorsDown();
-    		view.DrawFigure(logic);
-            break;
-        case ' ':
-//        	Delay(5000);
-        	model.dropFigure();
-            break;
-        case 80://'P':
-        case 112://'p':
-        	isPaused=true; //fix later or move back to run()
-            tc = System.currentTimeMillis();
-            break;
-        case '-':
-            if (logic.Level > 0) logic.Level--;
-            logic.k=0;
-            ShowLevel(_gr);
-            break;
-        case '+':
-            if (logic.Level < MaxLevel) logic.Level++;
-            logic.k=0;
-            ShowLevel(_gr);
-            break;
-    }
+        KeyPressed = true;
+        ch = e.key;
         return true;
     }
     public boolean lostFocus(Event e, Object w) {
@@ -171,125 +88,70 @@ public class Columns2 extends Applet {
     }
     
     public void paint(Graphics g) {
-        //		ShowHelp(g);
-        
+        //		ShowHelp(g);       
         g.setColor(Color.black);
-        
-        ShowLevel(g);
-        ShowScore(g);
-        view.DrawField(logic.Fnew);        
-        view.DrawFigure(logic);
+        controller.requestRepaintEvent();
         requestFocus();
-//        System.out.println("paint called");
     }
-    
-    
-    public void run2() {
+
+    public void run() {
         _gr.setColor(Color.black);
         requestFocus();
         
+        tc = System.currentTimeMillis();
         do {
-            tc = System.currentTimeMillis();
-            logic.newFigure();
-            Fig = logic.getFigure();
-            view.DrawFigure(logic);
-            while (logic.canMoveDown()) {
-                if ((int)(System.currentTimeMillis()-tc)>getDelay()) {
+            	if ((int)(System.currentTimeMillis()-tc)>controller.getDelay()) { 
                     tc = System.currentTimeMillis();
-                    view.HideFigure(Fig);
-                    logic.moveDown();
-                    view.DrawFigure(logic);
+                    controller.moveDown();
                 }
-                logic.DScore = 0;
                 do {
-                    Utils.Delay(50);//perhaps unneeded
-//                    if (KeyPressed) {
-//                        KeyPressed = false;
-//                        switch (ch) {
-//                            case Event.LEFT:
-//                        		if (logic.canMoveLeft()) {
-//                        		    HideFigure(Fig);
-//                        		    logic.moveLeft();
-//                        		    DrawFigure(logic);
-//                        		}
-//                                break;
-//                            case Event.RIGHT:
-//                        		if (logic.canMoveRight()) {
-//                        		    HideFigure(Fig);
-//                        		    logic.moveRight();
-//                        		    DrawFigure(logic);
-//                        		}
-//                                break;
-//                            case Event.UP:
-//                            	logic.scrollColorsUp();
-//                        		DrawFigure(logic);
-//                                break;
-//                            case Event.DOWN:
-//                            	logic.scrollColorsDown();
-//                        		DrawFigure(logic);
-//                                break;
-//                            case ' ':
-//                                HideFigure(Fig);
-//                                logic.DropFigure();
-//                                DrawFigure(logic);
-//                                tc = 0;
-//                                break;
-//                            case 'P':
-//                            case 'p':
-//                                while (!KeyPressed) {
+                    Utils.Delay(50);
+                    if (KeyPressed) {
+                        KeyPressed = false;
+                        switch (ch) {
+                            case Event.LEFT:
+                            	controller.moveLeft();
+                                break;
+                            case Event.RIGHT:
+                                controller.moveRight();
+                                break;
+                            case Event.UP:
+                            	controller.scrollColorsUp();
+                                break;
+                            case Event.DOWN:
+                            	controller.scrollColorsDown();
+                                break;
+                            case ' ':
+                            	tc = 0;
+                            	controller.dropFigure();
+                            	tc = System.currentTimeMillis();
+                                break;
+                            case 'P':
+                            case 'p':
+                                while (!KeyPressed) {
 //                                    HideFigure(Fig);
-//                                    Delay(500);
-//                                    DrawFigure(logic);
-//                                    Delay(500);
-//                                }
-//                                tc = System.currentTimeMillis();
-//                                break;
-//                            case '-':
-//                                if (logic.Level > 0) logic.Level--;
-//                                logic.k=0;
-//                                ShowLevel(_gr);
-//                                break;
-//                            case '+':
-//                                if (logic.Level < MaxLevel) logic.Level++;
-//                                logic.k=0;
-//                                ShowLevel(_gr);
-//                                break;
-//                        }
-//                    }
-                    while (isPaused) {
-                        view.HideFigure(Fig);
-                        Utils.Delay(500);
-                        view.DrawFigure(logic);
-                        Utils.Delay(500);
+                                	System.out.println("on pause...");
+                                    Utils.Delay(500);
+//                                    DrawFigure(Fig);
+                                	System.out.println("on pause...");
+                                    Utils.Delay(500);
+                                }
+                                tc = System.currentTimeMillis();
+                                break;
+                            case '-':
+                            	controller.levelDown();
+                                break;
+                            case '+':
+                            	controller.levelUp();
+                                break;
+                        }
                     }
-                } while ( (int)(System.currentTimeMillis()-tc) <= getDelay() );
-            };
-            logic.PasteFigure();
-            do {
-                logic.NoChanges = true;
-                TestField();
-                if (!logic.NoChanges) {
-                    Utils.Delay(500);
-                    logic.PackField();
-                    view.DrawField(logic.Fnew);
-                    logic.Score += logic.DScore;
-                    ShowScore(_gr);
-                    if (logic.k>=FigToDrop) {
-                        logic.k = 0;
-                        if (logic.Level<MaxLevel) logic.Level++;
-                        ShowLevel(_gr);
-                    }
-                }
-            } while (!logic.NoChanges);
-        }while (!FullField());
+                } while ( (int)(System.currentTimeMillis()-tc) <= controller.getDelay());
+        }while (!controller.FullField());
     }
-	private int getDelay() {
-		return (MaxLevel-logic.Level)*TimeShift+MinTimeShift;
-	}
-    
-	void ShowHelp(Graphics g) {
-        g.setColor(Color.black);
-        
+/*    
+    void ShowHelp(Graphics g) {
+        g.setColor(Color.black);        
         g.drawString(" Keys available:",200-LeftBorder,102);
         g.drawString("Roll Box Up:     ",200-LeftBorder,118);
         g.drawString("Roll Box Down:   ",200-LeftBorder,128);
@@ -300,51 +162,22 @@ public class Columns2 extends Applet {
         g.drawString("Pause:           P",200-LeftBorder,180);
         g.drawString("Quit:     Esc or Q",200-LeftBorder,190);
     }
-    void ShowLevel(Graphics g) {
-        g.setColor(Color.black);
-        g.clearRect(LeftBorder+100,390,100,20);
-        g.drawString("Level: "+logic.Level,LeftBorder+100,400);
-    }
-    void ShowScore(Graphics g) {
-        g.setColor(Color.black);
-        g.clearRect(LeftBorder,390,100,20);
-        g.drawString("Score: "+logic.Score,LeftBorder,400);
-    }
+*/
+    @Override
     public void start() {
         _gr.setColor(Color.black);
         
         //		setBackground (new Color(180,180,180));
         
         if (thr == null) {
-//            thr = new Thread(this);
-//            thr.start();
+            thr = new Thread(this);
+            thr.start();
         }
     }
     public void stop() {
         if (thr != null) {
-//            thr.stop();
+            thr.stop();
             thr = null;
-        }
-    }
-
-// 
-    void TestField() {
-        int i,j;
-//   deep copy the field
-        for (i=1; i<=Field.Depth; i++) {
-            for (j=1; j<=Field.Width; j++) {
-                logic.Fold[j][i] = logic.Fnew [j][i];
-            }
-        }
-        for (i=1; i<=Field.Depth; i++) {
-            for (j=1; j<=Field.Width; j++) {
-                if (logic.Fnew[j][i]>0) {
-                    CheckNeighbours(j,i-1,j,i+1,i,j);	//horizontal
-                    CheckNeighbours(j-1,i,j+1,i,i,j);	//vertical
-                    CheckNeighbours(j-1,i-1,j+1,i+1,i,j);//diagonal
-                    CheckNeighbours(j+1,i-1,j-1,i+1,i,j);//diagonal
-                }
-            }
         }
     }
 }

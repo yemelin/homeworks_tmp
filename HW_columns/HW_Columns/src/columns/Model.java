@@ -118,4 +118,15 @@ public class Model {
 		_logic.levelUp();
 		fireScoreChangedEvent();		
 	}
+
+    //  Essentially a game over check. Check if any of the top boxes if colored.
+    boolean FullField() {
+    	int[][] Fnew = _logic.getState().getField().getData();
+        int i;
+        for (i=1; i<=Field.Width; i++) {
+            if (Fnew[i][3]>0)
+                return true;
+        }
+        return false;
+    }
 }

@@ -15,33 +15,16 @@ public class Columns extends Applet {
     
     Font fCourier;
     Graphics _gr;
-
-    View view;
     Controller controller;
-    Model model;
-    Logic logic;
-
-        
-    //  Essentially a game over check. Check if any of the top boxes if colored.
-    boolean FullField() {
-    	int[][] Fnew = logic.getState().getField().getData();
-        int i;
-        for (i=1; i<=Field.Width; i++) {
-            if (Fnew[i][3]>0)
-                return true;
-        }
-        return false;
-    }
-    
+            
     public void init() {
         _gr = getGraphics();
         setSize(250, 500);
 
-        model = new Model();
-        logic = model._logic;
+        Model model = new Model();
         controller = new Controller();
         
-        view = new View();
+        View view = new View();
         view.setGraphics(new MyGraphics() {
 
 			@Override
@@ -71,9 +54,9 @@ public class Columns extends Applet {
         Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while (!FullField()) {
+				while (!controller.FullField()) {
 					Utils.Delay(controller.getDelay());
-					model.moveDown();
+					controller.moveDown();
 				}
 			}
         }, "Timer");
@@ -86,20 +69,20 @@ public class Columns extends Applet {
         int ch = k;
         switch (ch) {
         case Event.LEFT:
-        	model.moveLeft();
+        	controller.moveLeft();
             break;
         case Event.RIGHT:
-        	model.moveRight();
+        	controller.moveRight();
             break;
         case Event.UP:       	
-        	model.scrollColorsUp();
+        	controller.scrollColorsUp();
             break;
         case Event.DOWN:
-        	model.scrollColorsDown();
+        	controller.scrollColorsDown();
             break;
         case ' ':
 //        	Delay(5000);
-        	model.dropFigure();
+        	controller.dropFigure();
             break;
 /* failure to pause. can't pause from the same thread             
         case 80://'P':
@@ -107,10 +90,10 @@ public class Columns extends Applet {
             break;
 */            
         case '-':
-        	model.levelDown();
+        	controller.levelDown();
             break;
         case '+':
-        	model.levelUp();
+        	controller.levelUp();
             break;
     }
         return true;
