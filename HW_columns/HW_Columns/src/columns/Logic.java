@@ -78,17 +78,17 @@ public class Logic {
 	}
 	
 	boolean canMoveRight() {
-		return (_state.col<View.Width) && (_Fnew[_state.row+2][_state.col+1]==0);
+		return (_state.col<Field.Width) && (_Fnew[_state.row+2][_state.col+1]==0);
 	}
 	boolean canMoveDown() {
-		return (_state.row<View.Depth-2) && (_Fnew[_state.row+3][_state.col]==0);
+		return (_state.row<Field.Depth-2) && (_Fnew[_state.row+3][_state.col]==0);
 	}
 
 	void DropFigure() {
 		System.out.println("DropFigure from "+Thread.currentThread().getName());
 	    int zz;
-	    if (_state.row < View.Depth-2) {//if the figure is not at the bottom
-	        zz = View.Depth;	//find the first colored box under it (or the bottom)
+	    if (_state.row < Field.Depth-2) {//if the figure is not at the bottom
+	        zz = Field.Depth;	//find the first colored box under it (or the bottom)
 	        while (_Fnew[zz][_state.col]>0) 
 	        	zz--;
 	        _state.getScore().setDropBonus(zz -_state.row);
@@ -120,9 +120,9 @@ public class Logic {
 
 	void PackField() {
 	    int col,row,n;
-	    for (col=1; col<=View.Width; col++) {
-	        n = View.Depth;
-	        for (row=View.Depth; row>0; row--) {
+	    for (col=1; col<=Field.Width; col++) {
+	        n = Field.Depth;
+	        for (row=Field.Depth; row>0; row--) {
 	            if (_Fold[row][col]>0 && _Fold[row][col]!=8) {
 	                _Fnew[n][col] = _Fold[row][col];
 	                n--;
@@ -141,8 +141,8 @@ public class Logic {
 		NoChanges=true;
 		_state.copyFieldData(); //a side effect used by packField
 		_Fold = _state.getOldFieldData();
-        for (int row=1; row<=View.Depth; row++) {
-            for (int col=1; col<=View.Width; col++) {
+        for (int row=1; row<=Field.Depth; row++) {
+            for (int col=1; col<=Field.Width; col++) {
                 if (_Fnew[row][col]>0) {
                     processNeighbours(row-1,col,row+1,col, row,col);	//horizontal
                     processNeighbours(row, col-1, row,col+1, row,col);	//vertical

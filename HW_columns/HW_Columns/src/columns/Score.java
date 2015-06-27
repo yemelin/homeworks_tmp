@@ -10,7 +10,7 @@ public class Score {
 	long Score;
 
 	void setDropBonus(int rows) {
-		DScore = (((Level+1)*(View.Depth*2-rows) * 2) % 5) * 5;
+		DScore = (((Level+1)*(Field.Depth*2-rows) * 2) % 5) * 5;
 	}
 
 	void addLineBonus() {

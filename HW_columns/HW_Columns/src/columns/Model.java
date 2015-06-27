@@ -7,9 +7,8 @@ public class Model {
 	Logic _logic;
 	
 	public Model() {
-//		Field field = new Field(View.Depth,View.Width);
 		State state = new State();
-		state.setField(new Field(View.Depth,View.Width));
+		state.setField(new Field());
 		state.setFigure(new Figure());
 		state.setScore(new Score());
 		_logic = new Logic(state);

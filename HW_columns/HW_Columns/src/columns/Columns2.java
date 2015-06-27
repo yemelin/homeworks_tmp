@@ -71,7 +71,7 @@ public class Columns2 extends Applet {
     //  Essentially a game over check. Check if any of the top boxes if colored.
     boolean FullField() {
         int i;
-        for (i=1; i<=View.Width; i++) {
+        for (i=1; i<=Field.Width; i++) {
             if (logic.Fnew[i][3]>0)
                 return true;
         }
@@ -331,13 +331,13 @@ public class Columns2 extends Applet {
     void TestField() {
         int i,j;
 //   deep copy the field
-        for (i=1; i<=View.Depth; i++) {
-            for (j=1; j<=View.Width; j++) {
+        for (i=1; i<=Field.Depth; i++) {
+            for (j=1; j<=Field.Width; j++) {
                 logic.Fold[j][i] = logic.Fnew [j][i];
             }
         }
-        for (i=1; i<=View.Depth; i++) {
-            for (j=1; j<=View.Width; j++) {
+        for (i=1; i<=Field.Depth; i++) {
+            for (j=1; j<=Field.Width; j++) {
                 if (logic.Fnew[j][i]>0) {
                     CheckNeighbours(j,i-1,j,i+1,i,j);	//horizontal
                     CheckNeighbours(j-1,i,j+1,i,i,j);	//vertical

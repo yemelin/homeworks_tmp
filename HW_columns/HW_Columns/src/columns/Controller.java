@@ -26,8 +26,8 @@ public class Controller implements ModelListener {
 	public void onFieldChange(State state) {
 		System.out.println("onFieldChange");
 		int[][] Fold = state.getOldFieldData();
-		for (int i=1; i<=View.Depth; i++) {
-			for (int j=1; j<=View.Width; j++) {
+		for (int i=1; i<=Field.Depth; i++) {
+			for (int j=1; j<=Field.Width; j++) {
 				if (Fold[i][j]==8) {
 					_view.DrawBox(j, i, 8);
 				}

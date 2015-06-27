@@ -6,7 +6,7 @@ public class State {
 	private Figure _figure;
 	private Score _score;
 	
-	int col=View.Width/2+1;
+	int col=Field.Width/2+1;
 	int row=1;
  
 	public Field getField() {
@@ -30,7 +30,7 @@ public class State {
 	}
 	public void setFigure(Figure _figure) {
 		this._figure = _figure;
-		col = View.Width/2+1;
+		col = Field.Width/2+1;
 		row = 1;
 	}
 	public Score getScore() {

@@ -6,9 +6,7 @@ public class View {
 	private int saveX;
 	private int saveY;
 
-	static final int  Width=7;		//field width in boxes
-	static final int Depth=15;		//field height in boxes
-    static final int
+	static final int
     SL=25,			//box size in pixels
     LeftBorder=2,
     TopBorder=2;
@@ -27,8 +25,8 @@ public class View {
     void DrawField(int[][] data) {
     	
         int i,j;
-        for (i=1; i<=View.Depth; i++) {
-            for (j=1; j<=View.Width; j++) {
+        for (i=1; i<=Field.Depth; i++) {
+            for (j=1; j<=Field.Width; j++) {
                 DrawBox(j,i,data[i][j]);
             }
         }

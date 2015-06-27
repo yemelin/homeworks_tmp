@@ -1,23 +1,17 @@
 package columns;
 
 public class Field {
+	static final int Depth=15;		//field height in boxes
+	static final int  Width=7;		//field width in boxes
 	
 	private int[][] _data;
 	private int [][] _oldData;
 	
-	public Field(final int rows, final int cols) {
-		_data = new int[rows+2][cols+2];
-		_oldData = new int[rows+2][cols+2];
+	public Field() {
+		_data = new int[Depth+2][Width+2];
+		_oldData = new int[Depth+2][Width+2];
 	}
-
-	public int getWidth() {
-		return _data[0].length;
-	}
-
-	public int getHeight() {
-		return _data.length;
-	}
-
+	
 	public int[][] getData() {
 		return _data;
 	}

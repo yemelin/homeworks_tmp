@@ -2,9 +2,9 @@ package columns;
 
 import java.applet.*;
 import java.awt.*;
-import java.util.*;
 
 
+@SuppressWarnings("serial")
 public class Columns extends Applet {
     static final int
     TimeShift=250,
@@ -13,13 +13,7 @@ public class Columns extends Applet {
     Color MyStyles[] = {Color.black,Color.cyan,Color.blue,Color.red,Color.green,
     Color.yellow,Color.pink,Color.magenta,Color.black};
     
-    
-    int	i, j, ii, 
-    	ch;	//saves the key pressed
-    long tc;		//time counter
     Font fCourier;
-    boolean KeyPressed = false;
-    boolean isPaused = false;
     Graphics _gr;
 
     View view;
@@ -27,22 +21,12 @@ public class Columns extends Applet {
     Model model;
     Logic logic;
 
-    
-    void fillBox(int x, int y, int width, int height, int colorIndex, int bwidth){
-    	_gr.setColor(MyStyles[colorIndex]);
-    	_gr.fillRect(x, y, width, height);
-    	_gr.setColor(Color.BLACK);
-    	_gr.drawRect(x, y, width, height);
-    	_gr.setColor(Color.WHITE);
-    	for (int i=1; i<=bwidth; i++)
-    		_gr.drawRect(x+i, y+i, width-i*2, height-i*2);    	
-    }
-    
+        
     //  Essentially a game over check. Check if any of the top boxes if colored.
     boolean FullField() {
     	int[][] Fnew = logic.getState().getField().getData();
         int i;
-        for (i=1; i<=View.Width; i++) {
+        for (i=1; i<=Field.Width; i++) {
             if (Fnew[i][3]>0)
                 return true;
         }
@@ -58,13 +42,18 @@ public class Columns extends Applet {
         controller = new Controller();
         
         view = new View();
-        Columns self = this;
         view.setGraphics(new MyGraphics() {
 
 			@Override
 			public void fillBox(int x, int y, int width, int height,
 					int colorIndex, int bwidth) {
-				self.fillBox(x, y, width, height, colorIndex, bwidth);				
+			    	_gr.setColor(MyStyles[colorIndex]);
+			    	_gr.fillRect(x, y, width, height);
+			    	_gr.setColor(Color.BLACK);
+			    	_gr.drawRect(x, y, width, height);
+			    	_gr.setColor(Color.WHITE);
+			    	for (int i=1; i<=bwidth; i++)
+			    		_gr.drawRect(x+i, y+i, width-i*2, height-i*2);    	
 			}
 
 			@Override
@@ -83,7 +72,6 @@ public class Columns extends Applet {
 			@Override
 			public void run() {
 				while (!FullField()) {
-//					view.DrawFigure(logic); //needed because of side effect. FIX!
 					Utils.Delay(controller.getDelay());
 					model.moveDown();
 				}
@@ -95,14 +83,7 @@ public class Columns extends Applet {
     }
 //  Event is obsolete, replace with AWTEvent
     public boolean keyDown(Event e, int k) {
-//        KeyPressed = true;
-//        ch = e.key;
-    	KeyPressed = false;
-//    	if (isPaused)
-    	isPaused = false;
-        ch = k;
-//        System.out.println(ch);
-//------------------------------        
+        int ch = k;
         switch (ch) {
         case Event.LEFT:
         	model.moveLeft();
@@ -120,52 +101,34 @@ public class Columns extends Applet {
 //        	Delay(5000);
         	model.dropFigure();
             break;
+/* failure to pause. can't pause from the same thread             
         case 80://'P':
         case 112://'p':
-        	isPaused=true; //fix later or move back to run()
             break;
+*/            
         case '-':
         	model.levelDown();
-//            if (logic.Level > 0) logic.Level--;
-//            logic.k=0;
-//            ShowLevel(_gr);
             break;
         case '+':
         	model.levelUp();
-//            if (logic.Level < MaxLevel) logic.Level++;
-//            logic.k=0;
-//            ShowLevel(_gr);
             break;
     }
         return true;
     }
-    public boolean lostFocus(Event e, Object w) {
-        KeyPressed = true;
-        ch = 'P';
-        return true;
-    }
+// Can't handle pause in the version
+//    public boolean lostFocus(Event e, Object w) {
+//        KeyPressed = true;
+//        ch = 'P';
+//        return true;
+//    }
     
     public void paint(Graphics g) {
-        //		ShowHelp(g);
-        
+        //		ShowHelp(g);       
         g.setColor(Color.black);
-        
-//        ShowLevel(g);
-//        ShowScore(g);
-//        System.out.println("Befre drawField");
-//        int [][] F = (logic.getState().getField().getData());
-//        for (int i=0; i<F.length; i++)
-//        	System.out.println(Arrays.toString(F[i]));
-//        view.DrawField(logic.getState().getField().getData());   
-//        view.DrawFigure(logic);
         controller.requestRepaintEvent();
         requestFocus();
-//        System.out.println("paint called");
     }
     
-//	private int getDelay() {
-//		return (MaxLevel-logic.Level)*TimeShift+MinTimeShift;
-//	}
 /*    
 	void ShowHelp(Graphics g) {
         g.setColor(Color.black);
@@ -181,14 +144,4 @@ public class Columns extends Applet {
         g.drawString("Quit:     Esc or Q",200-LeftBorder,190);
     }
     */
-//    void ShowLevel(Graphics g) {
-//        g.setColor(Color.black);
-//        g.clearRect(View.LeftBorder+100,390,100,20);
-//        g.drawString("Level: "+logic.Level,View.LeftBorder+100,400);
-//    }
-//    void ShowScore(Graphics g) {
-//        g.setColor(Color.black);
-//        g.clearRect(View.LeftBorder,390,100,20);
-//        g.drawString("Score: "+logic.Score,View.LeftBorder,400);
-//    }
 }
