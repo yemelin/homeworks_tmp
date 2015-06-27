@@ -7,12 +7,12 @@ public class Model {
 	Logic _logic;
 	
 	public Model() {
-		Field field = new Field(View.Depth,View.Width);
+//		Field field = new Field(View.Depth,View.Width);
 		State state = new State();
-		state.setField(field);
+		state.setField(new Field(View.Depth,View.Width));
 		state.setFigure(new Figure());
+		state.setScore(new Score());
 		_logic = new Logic(state);
-//		_logic.newFigure();
 	}
 
 
@@ -68,8 +68,14 @@ public class Model {
 	void packField() {
 		_logic.PackField();
 		fireFieldPackedEvent();
+		fireScoreChangedEvent();
 	}
 	
+	private void fireScoreChangedEvent() {
+		for (ModelListener modelListener : _listeners) {
+			modelListener.onScoreChanged(_logic.getState());
+		}		
+	}
 	private void fireMovedEvent() {
 		for (ModelListener modelListener : _listeners) {
 			modelListener.onMove(_logic.getState());
@@ -97,5 +103,20 @@ public class Model {
 	public void sendRepaintEvent(ModelListener ml) {
 		ml.onFieldPack(_logic.getState());
 		ml.onNewFigure(_logic.getState());
+		ml.onScoreChanged(_logic.getState());
+	}
+
+	public long getDelay() {
+		return _logic.getState().getScore().calculateDelay();
+	}
+
+	public void levelDown() {
+		_logic.levelDown();
+		fireScoreChangedEvent();
+	}
+
+	public void levelUp() {
+		_logic.levelUp();
+		fireScoreChangedEvent();		
 	}
 }

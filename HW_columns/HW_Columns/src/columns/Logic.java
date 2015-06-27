@@ -1,6 +1,5 @@
 package columns;
 
-//TODO: get rid of Figure dependency
 //TODO: move score and level to a separate class
 public class Logic {
 
@@ -10,20 +9,8 @@ public class Logic {
 
 	private Figure _fig;
 	
-	long DScore;  //drop bonus
-	long Score;
-	int Level;
 	boolean NoChanges = true;
-	int k;		  //triplet counter
-	
-	Logic() {
-        Level = 0;
-        Score = 0;
-        k = 0;
-	}
-
 	public Logic(final State state) {
-		this();
 		_state = state;
 		_Fnew = _state.getField().getData();
 		_fig = state.getFigure();
@@ -104,7 +91,8 @@ public class Logic {
 	        zz = View.Depth;	//find the first colored box under it (or the bottom)
 	        while (_Fnew[zz][_state.col]>0) 
 	        	zz--;
-	        DScore = (((Level+1)*(View.Depth*2-_state.row-zz) * 2) % 5) * 5;
+	        _state.getScore().setDropBonus(zz -_state.row);
+//	        DScore = (((Level+1)*(View.Depth*2-_state.row-zz) * 2) % 5) * 5;
 	        _state.row = zz-2;		//drop
 	    }
 	}
@@ -117,8 +105,11 @@ public class Logic {
 		    _Fold[row3][col3] = 8;
 		    _Fold[row2][col2] = 8;
 		    NoChanges = false;
-		    Score += (Level+1)*10;
-		    k++;
+		    _state.getScore().addLineBonus();
+		    _state.getScore().updateLineCounter();
+//		    Score += (Level+1)*10;
+//		    k++;
+// TODO: update level here!
 		    System.out.print(row1+","+col1+" ");
 		    System.out.print(row3+","+col3+" ");
 		    System.out.println(row2+","+col2);
@@ -160,7 +151,27 @@ public class Logic {
                 }
             }
         }
+        if (!NoChanges)
+        	_state.getScore().addDropBonus();
+//        	Score+=DScore;
+        	
         System.out.println("processField, "+NoChanges);
 		return !NoChanges;
+	}
+
+	public void levelDown() {
+		Score score = _state.getScore();
+		if (score.Level>0) {
+			score.Level--;
+			score.k=0;
+		}
+	}
+
+	public void levelUp() {
+		Score score = _state.getScore();
+		if (score.Level<Score.MaxLevel) {
+			score.Level++;
+			score.k=0;
+		}			
 	}
 }

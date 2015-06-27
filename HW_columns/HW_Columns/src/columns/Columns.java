@@ -7,9 +7,7 @@ import java.util.*;
 
 public class Columns extends Applet {
     static final int
-    MaxLevel=7,
     TimeShift=250,
-    FigToDrop=33,	//max number of lines built for level
     MinTimeShift=200;	//time delay on the highest level
     
     Color MyStyles[] = {Color.black,Color.cyan,Color.blue,Color.red,Color.green,
@@ -66,10 +64,15 @@ public class Columns extends Applet {
 			@Override
 			public void fillBox(int x, int y, int width, int height,
 					int colorIndex, int bwidth) {
-				self.fillBox(x, y, width, height, colorIndex, bwidth);
-				
+				self.fillBox(x, y, width, height, colorIndex, bwidth);				
 			}
-        	
+
+			@Override
+			public void drawString(String s, int x, int y) {
+				_gr.setColor(Color.BLACK);
+		        _gr.clearRect(x,y,100,20);
+		        _gr.drawString(s,x,y+10);				
+			}        	
         });
         
         controller.setModel(model);
@@ -81,7 +84,7 @@ public class Columns extends Applet {
 			public void run() {
 				while (!FullField()) {
 //					view.DrawFigure(logic); //needed because of side effect. FIX!
-					Utils.Delay(getDelay());
+					Utils.Delay(controller.getDelay());
 					model.moveDown();
 				}
 			}
@@ -122,14 +125,16 @@ public class Columns extends Applet {
         	isPaused=true; //fix later or move back to run()
             break;
         case '-':
-            if (logic.Level > 0) logic.Level--;
-            logic.k=0;
-            ShowLevel(_gr);
+        	model.levelDown();
+//            if (logic.Level > 0) logic.Level--;
+//            logic.k=0;
+//            ShowLevel(_gr);
             break;
         case '+':
-            if (logic.Level < MaxLevel) logic.Level++;
-            logic.k=0;
-            ShowLevel(_gr);
+        	model.levelUp();
+//            if (logic.Level < MaxLevel) logic.Level++;
+//            logic.k=0;
+//            ShowLevel(_gr);
             break;
     }
         return true;
@@ -145,8 +150,8 @@ public class Columns extends Applet {
         
         g.setColor(Color.black);
         
-        ShowLevel(g);
-        ShowScore(g);
+//        ShowLevel(g);
+//        ShowScore(g);
 //        System.out.println("Befre drawField");
 //        int [][] F = (logic.getState().getField().getData());
 //        for (int i=0; i<F.length; i++)
@@ -158,9 +163,9 @@ public class Columns extends Applet {
 //        System.out.println("paint called");
     }
     
-	private int getDelay() {
-		return (MaxLevel-logic.Level)*TimeShift+MinTimeShift;
-	}
+//	private int getDelay() {
+//		return (MaxLevel-logic.Level)*TimeShift+MinTimeShift;
+//	}
 /*    
 	void ShowHelp(Graphics g) {
         g.setColor(Color.black);
@@ -176,14 +181,14 @@ public class Columns extends Applet {
         g.drawString("Quit:     Esc or Q",200-LeftBorder,190);
     }
     */
-    void ShowLevel(Graphics g) {
-        g.setColor(Color.black);
-        g.clearRect(View.LeftBorder+100,390,100,20);
-        g.drawString("Level: "+logic.Level,View.LeftBorder+100,400);
-    }
-    void ShowScore(Graphics g) {
-        g.setColor(Color.black);
-        g.clearRect(View.LeftBorder,390,100,20);
-        g.drawString("Score: "+logic.Score,View.LeftBorder,400);
-    }
+//    void ShowLevel(Graphics g) {
+//        g.setColor(Color.black);
+//        g.clearRect(View.LeftBorder+100,390,100,20);
+//        g.drawString("Level: "+logic.Level,View.LeftBorder+100,400);
+//    }
+//    void ShowScore(Graphics g) {
+//        g.setColor(Color.black);
+//        g.clearRect(View.LeftBorder,390,100,20);
+//        g.drawString("Score: "+logic.Score,View.LeftBorder,400);
+//    }
 }

@@ -56,4 +56,12 @@ public class Controller implements ModelListener {
 	public void requestRepaintEvent() {
 		_model.sendRepaintEvent(this);	
 	}
+	public long getDelay() {
+		return _model.getDelay();
+	}
+	@Override
+	public void onScoreChanged(State state) {
+		_view.ShowLevel(state);
+		_view.ShowScore(state);		
+	}
 }

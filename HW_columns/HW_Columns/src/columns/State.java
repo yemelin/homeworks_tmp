@@ -4,7 +4,8 @@ public class State {
 
 	private Field _field;
 	private Figure _figure;
-
+	private Score _score;
+	
 	int col=View.Width/2+1;
 	int row=1;
  
@@ -31,5 +32,11 @@ public class State {
 		this._figure = _figure;
 		col = View.Width/2+1;
 		row = 1;
+	}
+	public Score getScore() {
+		return _score;
+	}
+	public void setScore(Score _score) {
+		this._score = _score;
 	}
 }

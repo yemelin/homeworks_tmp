@@ -76,5 +76,12 @@ public class View {
 
 	}
     
+    void ShowLevel(State state) {
+        _graphics.drawString("Level: "+state.getScore().Level,View.LeftBorder+100,400);
+    }
+
+    void ShowScore(State state) {
+        _graphics.drawString("Score: "+state.getScore().Score,View.LeftBorder,400);
+    }
 
 }
