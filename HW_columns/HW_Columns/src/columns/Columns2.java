@@ -2,9 +2,9 @@ package columns;
 
 import java.applet.*;
 import java.awt.*;
-import java.util.*;
 
 
+@SuppressWarnings("serial")
 public class Columns2 extends Applet implements Runnable {
   
 	static final int
@@ -77,6 +77,7 @@ public class Columns2 extends Applet implements Runnable {
     
     
     public boolean keyDown(Event e, int k) {
+    	System.out.println("KeyDown from "+Thread.currentThread().getName());
         KeyPressed = true;
         ch = e.key;
         return true;
@@ -88,7 +89,8 @@ public class Columns2 extends Applet implements Runnable {
     }
     
     public void paint(Graphics g) {
-        //		ShowHelp(g);       
+        //		ShowHelp(g);
+    	System.out.println("paint from "+Thread.currentThread().getName());
         g.setColor(Color.black);
         controller.requestRepaintEvent();
         requestFocus();
@@ -107,6 +109,7 @@ public class Columns2 extends Applet implements Runnable {
                 do {
                     Utils.Delay(50);
                     if (KeyPressed) {
+                    	System.out.println("Processing key from "+Thread.currentThread().getName());
                         KeyPressed = false;
                         switch (ch) {
                             case Event.LEFT:
@@ -129,13 +132,9 @@ public class Columns2 extends Applet implements Runnable {
                             case 'P':
                             case 'p':
                                 while (!KeyPressed) {
-//                                    HideFigure(Fig);
-                                	System.out.println("on pause...");
-                                    Utils.Delay(500);
-//                                    DrawFigure(Fig);
-                                	System.out.println("on pause...");
-                                    Utils.Delay(500);
+                                	controller.blink();
                                 }
+                                ch = -1;
                                 tc = System.currentTimeMillis();
                                 break;
                             case '-':
@@ -174,10 +173,10 @@ public class Columns2 extends Applet implements Runnable {
             thr.start();
         }
     }
-    public void stop() {
-        if (thr != null) {
-            thr.stop();
-            thr = null;
-        }
-    }
+//    public void stop() {
+//        if (thr != null) {
+//            thr.stop();
+//            thr = null;
+//        }
+//    }
 }

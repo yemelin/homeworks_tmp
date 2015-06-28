@@ -98,6 +98,11 @@ public class Model {
 			modelListener.onNewFigure(_logic.getState());
 		}		
 	}
+	private void fireBlinkEvent() {
+		for (ModelListener modelListener : _listeners) {
+			modelListener.onBlink(_logic.getState());
+		}		
+	}
 	
 	public void sendRepaintEvent(ModelListener ml) {
 		ml.onFieldPack(_logic.getState());
@@ -119,7 +124,11 @@ public class Model {
 		fireScoreChangedEvent();		
 	}
 
-    //  Essentially a game over check. Check if any of the top boxes if colored.
+	public void blink() {
+		fireBlinkEvent();		
+	}
+
+	//  Essentially a game over check. Check if any of the top boxes if colored.
     boolean FullField() {
     	int[][] Fnew = _logic.getState().getField().getData();
         int i;
@@ -129,4 +138,5 @@ public class Model {
         }
         return false;
     }
+
 }

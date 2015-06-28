@@ -49,31 +49,33 @@ public class Controller implements ModelListener {
 		_view.DrawFigure(state);
 	}
 	
-//	@Override
-//	public void onScroll(State state) {
-//		_view.DrawFigure(state);		
-//	}
+	@Override
+	public void onScoreChanged(State state) {
+		_view.ShowLevel(state);
+		_view.ShowScore(state);		
+	}
+	@Override
+	public void onBlink (State state) {
+		_view.HideFigure();
+		Utils.Delay(500);
+		_view.DrawFigure(state);
+		Utils.Delay(500);
+	}
+	
 	public void requestRepaintEvent() {
 		_model.sendRepaintEvent(this);	
 	}
 	public long getDelay() {
 		return _model.getDelay();
 	}
-	@Override
-	public void onScoreChanged(State state) {
-		_view.ShowLevel(state);
-		_view.ShowScore(state);		
-	}
 	public boolean FullField() {
 		return _model.FullField();
 	}
 	public void moveLeft() {
-		_model.moveLeft();
-		
+		_model.moveLeft();		
 	}
 	public void moveRight() {
-		_model.moveRight();
-		
+		_model.moveRight();		
 	}
 	public void scrollColorsUp() {
 		_model.scrollColorsUp();		
@@ -91,7 +93,9 @@ public class Controller implements ModelListener {
 		_model.levelUp();		
 	}
 	public void moveDown() {
-		_model.moveDown();
-		
+		_model.moveDown();		
+	}
+	public void blink() {
+		_model.blink();		
 	}
 }

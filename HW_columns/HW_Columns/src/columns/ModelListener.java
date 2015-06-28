@@ -7,4 +7,5 @@ public interface ModelListener {
 	void onFieldPack(State state);
 	void onNewFigure(State state);
 	void onScoreChanged(State state);
+	void onBlink(State state);
 }
