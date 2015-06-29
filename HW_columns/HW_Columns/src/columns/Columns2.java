@@ -14,14 +14,9 @@ public class Columns2 extends Applet implements Runnable {
     Color MyStyles[] = {Color.black,Color.cyan,Color.blue,Color.red,Color.green,
     Color.yellow,Color.pink,Color.magenta,Color.black};
     
-//    int Level, i, j, ii, k; 
     int ch;
-//    long Score, DScore;
-    long tc;
-    Font fCourier;
-//    Figure Fig;
-//    int Fnew[][],Fold[][];
-    boolean NoChanges = true, KeyPressed = false;
+    Font fCourier; 
+    boolean KeyPressed = false;
     Graphics _gr;   
     Thread thr = null;
     Controller controller;
@@ -60,7 +55,10 @@ public class Columns2 extends Applet implements Runnable {
         controller.setModel(model);
         controller.setView(view);
         model.addListener(controller);       
-        
+
+/* This is the way to handle "move down" used at the Java course.
+ * But I think it is seriously thread-unsafe         
+ */
 //        Thread thread = new Thread(new Runnable() {
 //			@Override
 //			public void run() {
@@ -84,7 +82,7 @@ public class Columns2 extends Applet implements Runnable {
     }
     public boolean lostFocus(Event e, Object w) {
         KeyPressed = true;
-        ch = 'P';
+        ch = 'p';
         return true;
     }
     
@@ -96,10 +94,11 @@ public class Columns2 extends Applet implements Runnable {
         requestFocus();
     }
 
+/* original timer handling from pig.ru -> Columns. */
     public void run() {
-        _gr.setColor(Color.black);
-        requestFocus();
-        
+    	long tc;
+//        _gr.setColor(Color.black);
+//        requestFocus();        
         tc = System.currentTimeMillis();
         do {
             	if ((int)(System.currentTimeMillis()-tc)>controller.getDelay()) { 
@@ -162,9 +161,9 @@ public class Columns2 extends Applet implements Runnable {
 */
     @Override
     public void start() {
-        _gr.setColor(Color.black);
-        
-        //		setBackground (new Color(180,180,180));
+    	System.out.println("start from "+Thread.currentThread().getName());
+//      _gr.setColor(Color.black);      
+//		setBackground (new Color(180,180,180));
         
         if (thr == null) {
             thr = new Thread(this);

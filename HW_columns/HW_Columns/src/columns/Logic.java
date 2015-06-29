@@ -46,7 +46,7 @@ public class Logic {
 		}
 		else {
 			PasteFigure();			
-			_state.setFigure(_fig = new Figure());
+			_state.setFigure(_fig = Figure.newFigure());
 			return false;
 		}
 	}

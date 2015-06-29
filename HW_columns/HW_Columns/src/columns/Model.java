@@ -9,7 +9,7 @@ public class Model {
 	public Model() {
 		State state = new State();
 		state.setField(new Field());
-		state.setFigure(new Figure());
+		state.setFigure(Figure.newFigure());
 		state.setScore(new Score());
 		_logic = new Logic(state);
 	}
