@@ -10,6 +10,8 @@ public class Logic {
 	private Figure _fig;
 	
 	boolean NoChanges = true;
+	private boolean _fullField = false;
+	
 	public Logic(final State state) {
 		_state = state;
 		_Fnew = _state.getField().getData();
@@ -174,4 +176,21 @@ public class Logic {
 			score.k=0;
 		}			
 	}
+	
+	//  Essentially a game over check. Check if any of the top boxes if colored.
+    boolean FullField() {
+    	if (!_fullField) {
+    		int[][] Fnew = getState().getField().getData();
+    		int i;
+    		for (i=1; i<=Field.Width; i++) {
+    			if (Fnew[3][i]>0) {
+    				System.out.println("Game over");
+    				_fullField = true;
+    				break;
+    			}
+    		}
+    	}
+        return _fullField;
+    }
+
 }

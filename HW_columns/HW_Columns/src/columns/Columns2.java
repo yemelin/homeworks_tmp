@@ -79,7 +79,7 @@ public class Columns2 extends Applet implements Runnable {
     public boolean keyDown(Event e, int k) {
     	System.out.println("KeyDown from "+Thread.currentThread().getName());
         KeyPressed = true;
-        ch = e.key;
+        ch = (ch=='p')? -1: e.key;
         return true;
     }
     public boolean lostFocus(Event e, Object w) {
@@ -125,16 +125,14 @@ public class Columns2 extends Applet implements Runnable {
                             	controller.scrollColorsDown();
                                 break;
                             case ' ':
-                            	tc = 0;
                             	controller.dropFigure();
                             	tc = System.currentTimeMillis();
                                 break;
-                            case 'P':
+//                            case 'P':
                             case 'p':
                                 while (!KeyPressed) {
                                 	controller.blink();
                                 }
-                                ch = -1;
                                 tc = System.currentTimeMillis();
                                 break;
                             case '-':

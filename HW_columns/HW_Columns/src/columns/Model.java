@@ -41,11 +41,14 @@ public class Model {
 		if (_logic.moveDown()) {
 			fireMovedEvent();
 		}
-		else while (_logic.processField()) {//while there are changes
-			fireFieldChangedEvent();
-			packField();
+		else {
+			while (_logic.processField()) {//while there are changes		
+				fireFieldChangedEvent();
+				packField();
+			}
+			if (!_logic.FullField())
+				fireNewFigureEvent();
 		}
-		fireNewFigureEvent();
 	}
 
 	void scrollColorsUp() {
@@ -128,15 +131,9 @@ public class Model {
 		fireBlinkEvent();		
 	}
 
-	//  Essentially a game over check. Check if any of the top boxes if colored.
-    boolean FullField() {
-    	int[][] Fnew = _logic.getState().getField().getData();
-        int i;
-        for (i=1; i<=Field.Width; i++) {
-            if (Fnew[i][3]>0)
-                return true;
-        }
-        return false;
-    }
+	public boolean FullField() {
+		return _logic.FullField();
+	}
+
 
 }
